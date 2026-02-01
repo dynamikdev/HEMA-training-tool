@@ -1,3 +1,5 @@
+use bevy::post_process::bloom::Bloom;
+use bevy::core_pipeline::tonemapping::Tonemapping;
 use bevy::prelude::*;
 use rand::Rng;
 use std::f32::consts::PI;
@@ -24,6 +26,8 @@ fn setup(mut commands: Commands) {
     // Camera
     commands.spawn((
         Camera2d::default(),
+        Tonemapping::TonyMcMapface,
+        Bloom::default(),
         Transform::from_xyz(PANEL_WIDTH / 2.0, 0.0, 0.0),
     ));
 
@@ -83,7 +87,7 @@ fn highlight_system(
 
         for (index, mut color) in &mut query {
             if index.0 == target {
-                color.0 = Color::srgb(5.0, 0.0, 0.0); // Red highlight with high intensity for bloom
+                color.0 = Color::srgb(5.0, 0.0, 0.0); // Red highlight with high intensity for bloom with high intensity for bloom
             } else {
                 color.0 = Color::WHITE;
             }
