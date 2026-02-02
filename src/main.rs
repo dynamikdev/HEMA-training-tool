@@ -1,5 +1,5 @@
-use bevy::post_process::bloom::Bloom;
 use bevy::core_pipeline::tonemapping::Tonemapping;
+use bevy::post_process::bloom::Bloom;
 use bevy::prelude::*;
 use rand::Rng;
 use std::f32::consts::PI;
@@ -13,10 +13,17 @@ struct NumberIndex(u8);
 #[derive(Resource)]
 struct HighlightTimer(Timer);
 
+#[derive(Resource)]
+struct CurrentNumber(u8);
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .insert_resource(HighlightTimer(Timer::from_seconds(1.0, TimerMode::Repeating)))
+        .insert_resource(HighlightTimer(Timer::from_seconds(
+            1.0,
+            TimerMode::Repeating,
+        )))
+        .insert_resource(CurrentNumber(1))
         .add_systems(Startup, setup)
         .add_systems(Update, highlight_system)
         .run();
@@ -32,25 +39,26 @@ fn setup(mut commands: Commands) {
     ));
 
     // UI Root Node
-    commands.spawn(Node {
-        width: Val::Percent(100.0),
-        height: Val::Percent(100.0),
-        justify_content: JustifyContent::FlexEnd, // Push children (panel) to the right
-        ..default()
-    })
-    .with_children(|parent| {
-        // Configuration Panel
-        parent.spawn((
-            Node {
-                width: Val::Px(PANEL_WIDTH),
-                height: Val::Percent(100.0),
-                border: UiRect::left(Val::Px(2.0)),
-                ..default()
-            },
-            BackgroundColor(Color::srgb(0.2, 0.2, 0.2)),
-            BorderColor::from(Color::WHITE),
-        ));
-    });
+    commands
+        .spawn(Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            justify_content: JustifyContent::FlexEnd, // Push children (panel) to the right
+            ..default()
+        })
+        .with_children(|parent| {
+            // Configuration Panel
+            parent.spawn((
+                Node {
+                    width: Val::Px(PANEL_WIDTH),
+                    height: Val::Percent(100.0),
+                    border: UiRect::left(Val::Px(2.0)),
+                    ..default()
+                },
+                BackgroundColor(Color::srgb(0.2, 0.2, 0.2)),
+                BorderColor::from(Color::WHITE),
+            ));
+        });
 
     // Circle of Numbers
     let text_font = TextFont {
@@ -62,7 +70,7 @@ fn setup(mut commands: Commands) {
     for i in 1..=8 {
         // 1 at top (PI/2), clockwise decrement by 45 degrees (PI/4)
         let angle = PI / 2.0 - (i as f32 - 1.0) * (PI / 4.0);
-        
+
         let x = angle.cos() * CIRCLE_RADIUS;
         let y = angle.sin() * CIRCLE_RADIUS;
 
@@ -79,12 +87,17 @@ fn setup(mut commands: Commands) {
 fn highlight_system(
     time: Res<Time>,
     mut timer: ResMut<HighlightTimer>,
+    mut highlighted_number: ResMut<CurrentNumber>,
     mut query: Query<(&NumberIndex, &mut TextColor)>,
 ) {
     if timer.0.tick(time.delta()).just_finished() {
         let mut rng = rand::rng();
-        let target = rng.random_range(1..=8);
 
+        let mut target = rng.random_range(1..=8);
+        while target == highlighted_number.0 {
+            target = rng.random_range(1..=8);
+        }
+        highlighted_number.0 = target;
         for (index, mut color) in &mut query {
             if index.0 == target {
                 color.0 = Color::srgb(5.0, 0.0, 0.0); // Red highlight with high intensity for bloom with high intensity for bloom
