@@ -1,6 +1,10 @@
 use bevy::core_pipeline::tonemapping::Tonemapping;
 use bevy::post_process::bloom::Bloom;
 use bevy::prelude::*;
+use bevy_ui_widgets::{
+    SetSliderValue, Slider, SliderPlugin, SliderRange, SliderStep, SliderThumb, SliderValue,
+    SliderValueChange, slider_self_update,
+};
 use rand::Rng;
 use std::f32::consts::PI;
 
@@ -37,6 +41,26 @@ struct SequenceControlButton;
 #[derive(Component)]
 struct SequenceModeButton;
 
+#[derive(Default, PartialEq, Clone, Copy, Debug)]
+enum RhythmMode {
+    #[default]
+    Constant,
+    Accelerate,
+}
+
+#[derive(Resource)]
+struct RhythmState {
+    duration: f32, // slider value between 0.5 and 3.0
+    mode: RhythmMode,
+    accelerate_counter: u8,
+}
+
+#[derive(Component)]
+struct RhythmModeButton;
+
+#[derive(Component)]
+struct RhythmText;
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
@@ -50,6 +74,14 @@ fn main() {
             mode: SequenceMode::Random,
             current_ordered_value: 0,
         })
+        .insert_resource(RhythmState {
+            duration: 1.0,
+            mode: RhythmMode::Constant,
+            accelerate_counter: 0,
+        })
+        .add_plugins(SliderPlugin)
+        // Self-update the SliderValue component upon dragging
+        .add_observer(slider_self_update)
         .add_systems(Startup, setup)
         .add_systems(
             Update,
@@ -57,6 +89,10 @@ fn main() {
                 highlight_system,
                 sequence_control_button_system,
                 mode_toggle_system,
+                rhythm_mode_toggle_system,
+                style_slider_system,
+                update_rhythm_from_slider,
+                update_circle_layout,
             ),
         )
         .run();
@@ -164,10 +200,84 @@ fn setup(mut commands: Commands) {
                                 TextColor(Color::srgb(0.9, 0.9, 0.9)),
                             ));
                         });
+
+                    // Rhythm Mode Toggle Button
+                    parent
+                        .spawn((
+                            Button,
+                            Node {
+                                width: Val::Percent(100.0),
+                                height: Val::Px(45.0),
+                                border: UiRect::all(Val::Px(2.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                margin: UiRect::bottom(Val::Px(10.0)),
+                                ..default()
+                            },
+                            BorderColor::all(Color::WHITE),
+                            BackgroundColor(Color::srgb(0.15, 0.15, 0.15)),
+                            RhythmModeButton,
+                        ))
+                        .with_children(|parent| {
+                            parent.spawn((
+                                Text::new("Rhythm: Constant"),
+                                TextFont {
+                                    font_size: 20.0,
+                                    ..default()
+                                },
+                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                            ));
+                        });
+
+                    // Rhythm Label
+                    parent.spawn((
+                        Text::new("Rhythm: 1.0s"),
+                        TextFont {
+                            font_size: 25.0,
+                            ..default()
+                        },
+                        TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                        Node {
+                            margin: UiRect::bottom(Val::Px(5.0)),
+                            ..default()
+                        },
+                        RhythmText,
+                    ));
+
+                    // Rhythm Slider widget
+                    parent
+                        .spawn((
+                            Node {
+                                width: Val::Px(24.0),
+                                height: Val::Px(200.0),
+                                align_self: AlignSelf::Center,
+                                margin: UiRect::bottom(Val::Px(20.0)),
+                                ..default()
+                            },
+                            BackgroundColor(Color::srgb(0.1, 0.1, 0.1)),
+                            BorderColor::all(Color::WHITE),
+                            Interaction::default(),
+                            Slider::default(),
+                            SliderValue(1.0),
+                            SliderRange::new(0.5, 3.0),
+                            SliderStep(0.1),
+                        ))
+                        .with_children(|parent| {
+                            parent.spawn((
+                                Node {
+                                    width: Val::Percent(100.0),
+                                    height: Val::Px(16.0),
+                                    position_type: PositionType::Absolute,
+                                    ..default()
+                                },
+                                BackgroundColor(Color::srgb(0.8, 0.8, 0.8)),
+                                SliderThumb,
+                            ));
+                        });
                 });
         });
 
-    // Circle of Numbers
+    // Circle of Numbers (initial spawn)
     let text_font = TextFont {
         font_size: 70.0,
         ..default()
@@ -194,12 +304,47 @@ fn highlight_system(
     mut highlighted_number: ResMut<CurrentNumber>,
     mut query: Query<(&NumberIndex, &mut TextColor)>,
     mut sequence_state: ResMut<SequenceState>,
+    mut rhythm_state: ResMut<RhythmState>,
+    mut text_query: Query<&mut Text, With<RhythmText>>,
+    slider_query: Query<Entity, With<Slider>>,
+    mut commands: Commands,
 ) {
     if !sequence_state.running {
         return;
     }
 
     if timer.0.tick(time.delta()).just_finished() {
+        // Handle Acceleration
+        if rhythm_state.mode == RhythmMode::Accelerate {
+            rhythm_state.accelerate_counter += 1;
+
+            if rhythm_state.accelerate_counter >= 8 {
+                rhythm_state.accelerate_counter = 0;
+                let mut new_duration = rhythm_state.duration - 0.1;
+                if new_duration < 0.1 {
+                    new_duration = 0.1; // Cap at 0.1 seconds minimum
+                }
+
+                if new_duration != rhythm_state.duration {
+                    rhythm_state.duration = new_duration;
+                    timer
+                        .0
+                        .set_duration(std::time::Duration::from_secs_f32(new_duration));
+
+                    // Sync UI text and slider
+                    for mut text in &mut text_query {
+                        text.0 = format!("Rhythm: {:.1}s", new_duration);
+                    }
+                    for slider_entity in &slider_query {
+                        commands.trigger(SetSliderValue {
+                            entity: slider_entity,
+                            change: SliderValueChange::Absolute(new_duration),
+                        });
+                    }
+                }
+            }
+        }
+
         let target_index = match sequence_state.mode {
             SequenceMode::Random => {
                 let mut rng = rand::rng();
@@ -211,7 +356,8 @@ fn highlight_system(
             }
             SequenceMode::Ordered => {
                 // Cycle values 1 to 8
-                sequence_state.current_ordered_value = (sequence_state.current_ordered_value % 8) + 1;
+                sequence_state.current_ordered_value =
+                    (sequence_state.current_ordered_value % 8) + 1;
                 // Find index of this value in LABELS
                 LABELS
                     .iter()
@@ -238,6 +384,7 @@ fn sequence_control_button_system(
     >,
     mut text_query: Query<&mut Text>,
     mut sequence_state: ResMut<SequenceState>,
+    mut rhythm_state: ResMut<RhythmState>,
 ) {
     for (interaction, mut background_color, children) in &mut interaction_query {
         let mut text = text_query.get_mut(children[0]).unwrap();
@@ -250,6 +397,8 @@ fn sequence_control_button_system(
                 } else {
                     text.0 = "Launch Sequence".to_string();
                     background_color.0 = Color::srgb(0.15, 0.15, 0.15);
+                    // Reset accelerate counter when stopping, so it always starts fresh
+                    rhythm_state.accelerate_counter = 0;
                 }
             }
             Interaction::Hovered => {
@@ -300,6 +449,127 @@ fn mode_toggle_system(
             Interaction::None => {
                 background_color.0 = Color::srgb(0.15, 0.15, 0.15);
             }
+        }
+    }
+}
+
+fn rhythm_mode_toggle_system(
+    mut interaction_query: Query<
+        (&Interaction, &mut BackgroundColor, &Children),
+        (Changed<Interaction>, With<RhythmModeButton>),
+    >,
+    mut text_query: Query<&mut Text>,
+    mut rhythm_state: ResMut<RhythmState>,
+) {
+    for (interaction, mut background_color, children) in &mut interaction_query {
+        let mut text = text_query.get_mut(children[0]).unwrap();
+        match *interaction {
+            Interaction::Pressed => {
+                rhythm_state.mode = match rhythm_state.mode {
+                    RhythmMode::Constant => RhythmMode::Accelerate,
+                    RhythmMode::Accelerate => RhythmMode::Constant,
+                };
+
+                // Reset counter when toggling modes
+                rhythm_state.accelerate_counter = 0;
+
+                match rhythm_state.mode {
+                    RhythmMode::Constant => {
+                        text.0 = "Rhythm: Constant".to_string();
+                    }
+                    RhythmMode::Accelerate => {
+                        text.0 = "Rhythm: Accelerate".to_string();
+                    }
+                }
+            }
+            Interaction::Hovered => {
+                background_color.0 = Color::srgb(0.25, 0.25, 0.25);
+            }
+            Interaction::None => {
+                background_color.0 = Color::srgb(0.15, 0.15, 0.15);
+            }
+        }
+    }
+}
+
+fn style_slider_system(
+    mut thumb_nodes: Query<&mut Node, With<SliderThumb>>,
+    slider_query: Query<(&SliderValue, &SliderRange, &ComputedNode, &Children), With<Slider>>,
+) {
+    for (value, range, track_computed, children) in &slider_query {
+        let track_size = track_computed.size();
+        let is_vertical = track_size.y > track_size.x;
+
+        let thumb_extent = 16.0; // Fixed size given in spawn
+        let track_extent = if is_vertical {
+            track_size.y
+        } else {
+            track_size.x
+        };
+
+        if track_extent > thumb_extent {
+            let percent =
+                ((value.0 - range.start()) / (range.end() - range.start())).clamp(0.0, 1.0);
+            let max_pos = 1.0_f32 - (thumb_extent / track_extent);
+
+            for &child in children {
+                if let Ok(mut thumb_node) = thumb_nodes.get_mut(child) {
+                    if is_vertical {
+                        thumb_node.bottom = Val::Percent(percent * max_pos * 100.0);
+                        thumb_node.left = Val::Auto;
+                    } else {
+                        thumb_node.left = Val::Percent(percent * max_pos * 100.0);
+                        thumb_node.bottom = Val::Auto;
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn update_circle_layout(
+    window: Single<&bevy::window::Window, With<bevy::window::PrimaryWindow>>,
+    mut text_query: Query<(&NumberIndex, &mut Transform, &mut TextFont)>,
+) {
+    let available_width = window.resolution.width() - PANEL_WIDTH;
+    let available_height = window.resolution.height();
+
+    // Use minimum dimension for radius to ensure it perfectly fits inside remaining space, with a little padding
+    let radius = available_width.min(available_height) / 2.0 * 0.8;
+    // Scale font size linearly using a magic constant that looks good
+    let dynamic_font_size = radius * 0.25;
+
+    for (index, mut transform, mut text_font) in &mut text_query {
+        let i = index.0;
+        let angle = PI / 2.0 - (i as f32) * (PI / 4.0);
+
+        let x = angle.cos() * radius;
+        let y = angle.sin() * radius;
+
+        transform.translation.x = x;
+        transform.translation.y = y;
+        text_font.font_size = dynamic_font_size.max(10.0); // Don't let it shrink to nothing
+    }
+}
+
+fn update_rhythm_from_slider(
+    slider_query: Query<&SliderValue, Changed<SliderValue>>,
+    mut rhythm_state: ResMut<RhythmState>,
+    mut highlight_timer: ResMut<HighlightTimer>,
+    mut text_query: Query<&mut Text, With<RhythmText>>,
+) {
+    for slider_val in &slider_query {
+        let value = (slider_val.0 * 10.0).round() / 10.0;
+
+        if rhythm_state.duration != value {
+            rhythm_state.duration = value;
+            for mut text in &mut text_query {
+                text.0 = format!("Rhythm: {:.1}s", value);
+            }
+
+            highlight_timer
+                .0
+                .set_duration(std::time::Duration::from_secs_f32(value));
         }
     }
 }
