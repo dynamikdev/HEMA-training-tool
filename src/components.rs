@@ -14,6 +14,3 @@ pub struct RhythmModeButton;
 
 #[derive(Component)]
 pub struct RhythmText;
-
-#[derive(Component)]
-pub struct SliderThumb;
