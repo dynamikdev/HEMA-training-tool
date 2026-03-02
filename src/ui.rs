@@ -1,3 +1,5 @@
+//! UI implementation for the HEMA Training Tool, including the configuration panel and circular target layout.
+
 use bevy::core_pipeline::tonemapping::Tonemapping;
 use bevy::post_process::bloom::Bloom;
 use bevy::prelude::*;
@@ -8,6 +10,7 @@ use crate::components::*;
 use crate::constants::{CIRCLE_RADIUS, LABELS, PANEL_WIDTH};
 use crate::resources::*;
 
+/// Plugin that initializes and manages the training tool's user interface.
 pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
@@ -28,25 +31,27 @@ impl Plugin for UiPlugin {
     }
 }
 
+/// Initial setup for the UI, including the camera, the settings panel, and the target numbers.
 fn setup(mut commands: Commands) {
-    // Camera
+    // 2D Camera with Bloom effect for the high-intensity highlight.
     commands.spawn((
         Camera2d::default(),
         Tonemapping::TonyMcMapface,
         Bloom::default(),
+        // Offset the camera so (0,0) is centered in the space remaining after the panel.
         Transform::from_xyz(PANEL_WIDTH / 2.0, 0.0, 0.0),
     ));
 
-    // UI Root Node
+    // UI Root Node: Full screen container.
     commands
         .spawn(Node {
             width: Val::Percent(100.0),
             height: Val::Percent(100.0),
-            justify_content: JustifyContent::FlexEnd,
+            justify_content: JustifyContent::FlexEnd, // Push children to the right side.
             ..default()
         })
         .with_children(|parent| {
-            // Configuration Panel
+            // Configuration Panel: Fixed-width side panel on the right.
             parent
                 .spawn((
                     Node {
@@ -75,7 +80,7 @@ fn setup(mut commands: Commands) {
                         },
                     ));
 
-                    // Mode Toggle Button
+                    // Mode Toggle Button: Switches between Random and Ordered sequences.
                     parent
                         .spawn((
                             Button,
@@ -103,7 +108,7 @@ fn setup(mut commands: Commands) {
                             ));
                         });
 
-                    // Sequence Control Button
+                    // Sequence Control Button: Starts/Stops the training sequence.
                     parent
                         .spawn((
                             Button,
@@ -131,7 +136,7 @@ fn setup(mut commands: Commands) {
                             ));
                         });
 
-                    // Rhythm Mode Toggle Button
+                    // Rhythm Mode Toggle Button: Constant vs Accelerate timing.
                     parent
                         .spawn((
                             Button,
@@ -159,7 +164,7 @@ fn setup(mut commands: Commands) {
                             ));
                         });
 
-                    // Rhythm Label
+                    // Rhythm current value label.
                     parent.spawn((
                         Text::new("Rhythm: 1.0s"),
                         TextFont {
@@ -174,7 +179,7 @@ fn setup(mut commands: Commands) {
                         RhythmText,
                     ));
 
-                    // Rhythm Slider widget
+                    // Rhythm Slider widget (vertical).
                     parent
                         .spawn((
                             Node {
@@ -207,13 +212,14 @@ fn setup(mut commands: Commands) {
                 });
         });
 
-    // Circle of Numbers (initial spawn)
+    // Circle of Numbers (initial spawn placeholder).
     let text_font = TextFont {
         font_size: 70.0,
         ..default()
     };
     let text_color = TextColor(Color::WHITE);
     for i in 0..=7 {
+        // Calculation centered at (0,0), later refined by update_circle_layout.
         let angle = PI / 2.0 - (i as f32) * (PI / 4.0);
         let x = angle.cos() * CIRCLE_RADIUS;
         let y = angle.sin() * CIRCLE_RADIUS;
@@ -228,6 +234,7 @@ fn setup(mut commands: Commands) {
     }
 }
 
+/// Handles interactions with the start/stop sequence button.
 fn sequence_control_button_system(
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor, &Children),
@@ -248,7 +255,7 @@ fn sequence_control_button_system(
                 } else {
                     text.0 = "Launch Sequence".to_string();
                     background_color.0 = Color::srgb(0.15, 0.15, 0.15);
-                    // Reset accelerate counter when stopping, so it always starts fresh
+                    // Reset accelerate counter when stopping, so it always starts fresh.
                     rhythm_state.accelerate_counter = 0;
                 }
             }
@@ -266,6 +273,7 @@ fn sequence_control_button_system(
     }
 }
 
+/// Handles interactions with the sequence mode toggle button.
 fn mode_toggle_system(
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor, &Children),
@@ -282,7 +290,7 @@ fn mode_toggle_system(
                     SequenceMode::Random => SequenceMode::Ordered,
                     SequenceMode::Ordered => SequenceMode::Random,
                 };
-                // Reset ordered progress when switching modes or just to be safe
+                // Reset ordered progress when switching modes or just to be safe.
                 sequence_state.current_ordered_value = 0;
 
                 match sequence_state.mode {
@@ -304,6 +312,7 @@ fn mode_toggle_system(
     }
 }
 
+/// Handles interactions with the rhythm mode toggle button.
 fn rhythm_mode_toggle_system(
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor, &Children),
@@ -321,7 +330,7 @@ fn rhythm_mode_toggle_system(
                     RhythmMode::Accelerate => RhythmMode::Constant,
                 };
 
-                // Reset counter when toggling modes
+                // Reset counter when toggling modes.
                 rhythm_state.accelerate_counter = 0;
 
                 match rhythm_state.mode {
@@ -343,6 +352,7 @@ fn rhythm_mode_toggle_system(
     }
 }
 
+/// Visual styling system for the slider thumb position.
 fn style_slider_system(
     mut thumb_nodes: Query<&mut Node, With<SliderThumb>>,
     slider_query: Query<(&SliderValue, &SliderRange, &ComputedNode, &Children), With<Slider>>,
@@ -351,7 +361,7 @@ fn style_slider_system(
         let track_size = track_computed.size();
         let is_vertical = track_size.y > track_size.x;
 
-        let thumb_extent = 16.0; // Fixed size given in spawn
+        let thumb_extent = 16.0; // Fixed size given in spawn.
         let track_extent = if is_vertical {
             track_size.y
         } else {
@@ -378,20 +388,23 @@ fn style_slider_system(
     }
 }
 
+/// Dynamically updates the circular layout of numbers to fit the window and panel.
 fn update_circle_layout(
     window: Single<&bevy::window::Window, With<bevy::window::PrimaryWindow>>,
     mut text_query: Query<(&NumberIndex, &mut Transform, &mut TextFont)>,
 ) {
+    // Available space is the window minus the side panel.
     let available_width = window.resolution.width() - PANEL_WIDTH;
     let available_height = window.resolution.height();
 
-    // Use minimum dimension for radius to ensure it perfectly fits inside remaining space, with a little padding
+    // Use minimum dimension for radius to ensure it perfectly fits inside remaining space, with a little padding.
     let radius = available_width.min(available_height) / 2.0 * 0.8;
-    // Scale font size linearly using a magic constant that looks good
+    // Scale font size linearly based on radius.
     let dynamic_font_size = radius * 0.25;
 
     for (index, mut transform, mut text_font) in &mut text_query {
         let i = index.0;
+        // Calculate position on the circle. Start at 90 degrees (Top) and move clockwise.
         let angle = PI / 2.0 - (i as f32) * (PI / 4.0);
 
         let x = angle.cos() * radius;
@@ -399,10 +412,11 @@ fn update_circle_layout(
 
         transform.translation.x = x;
         transform.translation.y = y;
-        text_font.font_size = dynamic_font_size.max(10.0); // Don't let it shrink to nothing
+        text_font.font_size = dynamic_font_size.max(10.0); // Ensure readability on small windows.
     }
 }
 
+/// Syncs the simulation rhythm state with the UI slider value.
 fn update_rhythm_from_slider(
     slider_query: Query<&SliderValue, Changed<SliderValue>>,
     mut rhythm_state: ResMut<RhythmState>,
@@ -410,6 +424,7 @@ fn update_rhythm_from_slider(
     mut text_query: Query<&mut Text, With<RhythmText>>,
 ) {
     for slider_val in &slider_query {
+        // Snap to grid of 0.1s.
         let value = (slider_val.0 * 10.0).round() / 10.0;
 
         if rhythm_state.duration != value {
