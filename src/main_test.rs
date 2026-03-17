@@ -1,0 +1,19 @@
+
+#[cfg(test)]
+mod tests {
+    use bevy::prelude::*;
+    use crate::initialize_app;
+    use crate::resources::*;
+
+    #[test]
+    fn test_initialize_app_adds_resources() {
+        let mut app = App::new();
+        initialize_app(&mut app);
+
+        // Verify that initial resources were correctly inserted.
+        assert!(app.world().get_resource::<HighlightTimer>().is_some());
+        assert!(app.world().get_resource::<CurrentNumber>().is_some());
+        assert!(app.world().get_resource::<SequenceState>().is_some());
+        assert!(app.world().get_resource::<RhythmState>().is_some());
+    }
+}
