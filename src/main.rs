@@ -8,6 +8,8 @@ mod components;
 mod components_test;
 mod constants;
 mod logic;
+#[cfg(test)]
+mod logic_test;
 mod resources;
 #[cfg(test)]
 mod resources_test;
