@@ -11,7 +11,7 @@ pub struct HighlightTimer(pub Timer);
 pub struct CurrentNumber(pub u8);
 
 /// Defines how the sequence of target numbers is generated.
-#[derive(Default, PartialEq, Clone, Copy)]
+#[derive(Debug, Default, PartialEq, Clone, Copy)]
 pub enum SequenceMode {
     /// Numbers are picked randomly.
     #[default]
@@ -21,7 +21,7 @@ pub enum SequenceMode {
 }
 
 /// State for the overall training sequence.
-#[derive(Resource, Default)]
+#[derive(Resource, Default, Debug)]
 pub struct SequenceState {
     /// Whether the sequence is currently active.
     pub running: bool,
@@ -32,7 +32,7 @@ pub struct SequenceState {
 }
 
 /// Defines the rhythm (timing) of the sequence.
-#[derive(Default, PartialEq, Clone, Copy, Debug)]
+#[derive(Debug, Default, PartialEq, Clone, Copy)]
 pub enum RhythmMode {
     /// Constant interval between steps.
     #[default]
@@ -42,7 +42,7 @@ pub enum RhythmMode {
 }
 
 /// State for managing the timing rhythm of the sequence.
-#[derive(Resource)]
+#[derive(Resource, Debug)]
 pub struct RhythmState {
     /// Current duration in seconds between highlights.
     pub duration: f32, // slider value between 0.5 and 3.0

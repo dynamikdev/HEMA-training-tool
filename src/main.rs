@@ -4,9 +4,13 @@ use bevy::prelude::*;
 mod main_test;
 
 mod components;
+#[cfg(test)]
+mod components_test;
 mod constants;
 mod logic;
 mod resources;
+#[cfg(test)]
+mod resources_test;
 mod ui;
 
 use logic::TrainingPlugin;
