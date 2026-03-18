@@ -58,3 +58,12 @@ pub struct TargetInputEvent {
     /// Whether the input was correct.
     pub correct: bool,
 }
+
+/// Resource to track training performance during the current session.
+#[derive(Resource, Default, Debug)]
+pub struct SessionStats {
+    /// Number of correct target hits.
+    pub correct_count: u32,
+    /// Number of incorrect target hits.
+    pub incorrect_count: u32,
+}

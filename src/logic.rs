@@ -18,10 +18,25 @@ impl Plugin for TrainingPlugin {
             handle_target_input,
             handle_feedback,
             update_feedback_visuals,
+            update_stats,
             sync_rhythm_timer,
             sync_target_visuals,
             sync_rhythm_ui
         ).chain());
+    }
+}
+
+/// System that updates session statistics based on input events.
+fn update_stats(
+    mut message_reader: MessageReader<TargetInputEvent>,
+    mut stats: ResMut<SessionStats>,
+) {
+    for event in message_reader.read() {
+        if event.correct {
+            stats.correct_count += 1;
+        } else {
+            stats.incorrect_count += 1;
+        }
     }
 }
 

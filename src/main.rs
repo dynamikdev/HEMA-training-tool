@@ -46,7 +46,8 @@ fn initialize_app(app: &mut App) {
             duration: 1.0,
             mode: RhythmMode::Constant,
             accelerate_counter: 0,
-        });
+        })
+        .insert_resource(SessionStats::default());
 }
 
 fn main() {
