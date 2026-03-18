@@ -1,21 +1,21 @@
 # Implementation Plan: Implement core reaction training loop
 
 ## Phase 1: Core Logic Setup
-- [ ] Task: Set up basic Bevy app structure.
-    - [ ] Task: Initialize Bevy app and window.
-    - [ ] Task: Add necessary Bevy plugins.
-- [ ] Task: Define core data structures for targets and sequences.
-    - [ ] Task: Create `Target` struct.
-    - [ ] Task: Create `Sequence` struct (handling modes).
-- [ ] Task: Implement target display system.
-    - [ ] Task: Render numerical targets on screen.
-    - [ ] Task: Logic for highlighting active target.
-- [ ] Task: Implement sequence generation logic.
-    - [ ] Task: Implement random sequence generation.
-    - [ ] Task: Implement ordered sequence generation.
-- [ ] Task: Implement rhythm modes logic.
-    - [ ] Task: Implement constant rhythm timer.
-    - [ ] Task: Implement accelerating rhythm timer.
+- [x] Task: Set up basic Bevy app structure. 2a53e4f
+    - [x] Task: Initialize Bevy app and window. 2a53e4f
+    - [x] Task: Add necessary Bevy plugins. 2a53e4f
+- [x] Task: Define core data structures for targets and sequences. 2a53e4f
+    - [x] Task: Create `Target` struct. 2a53e4f
+    - [x] Task: Create `Sequence` struct (handling modes). 2a53e4f
+- [x] Task: Implement target display system. 2a53e4f
+    - [x] Task: Render numerical targets on screen. 2a53e4f
+    - [x] Task: Logic for highlighting active target. 2a53e4f
+- [x] Task: Implement sequence generation logic. 2a53e4f
+    - [x] Task: Implement random sequence generation. 2a53e4f
+    - [x] Task: Implement ordered sequence generation. 2a53e4f
+- [x] Task: Implement rhythm modes logic. a13354c
+    - [x] Task: Implement constant rhythm timer. a13354c
+    - [x] Task: Implement accelerating rhythm timer. a13354c
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Core Logic Setup' (Protocol in workflow.md)
 
 ## Phase 2: User Interaction and Feedback
