@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Implement core reaction training loop**
+- [x] **Track: Implement core reaction training loop**
   *Link: [./tracks/core_training_loop_20260317/](./tracks/core_training_loop_20260317/)*
