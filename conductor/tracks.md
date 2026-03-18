@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Implement core logic setup**
+- [x] **Track: Implement core logic setup**
   *Link: [./tracks/implement_core_logic_setup_20260317/](./tracks/implement_core_logic_setup_20260317/)*
