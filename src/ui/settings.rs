@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::ui::RelativeCursorPosition;
 use bevy_ui_widgets::{Slider, SliderRange, SliderStep, SliderThumb, SliderValue};
 
 use crate::components::*;
@@ -148,6 +149,7 @@ fn spawn_rhythm_section(parent: &mut ChildSpawnerCommands) {
     // Rhythm Slider widget (vertical).
     parent
         .spawn((
+            Button,
             Node {
                 width: Val::Px(24.0),
                 height: Val::Px(200.0),
@@ -158,6 +160,7 @@ fn spawn_rhythm_section(parent: &mut ChildSpawnerCommands) {
             BackgroundColor(Color::srgb(0.1, 0.1, 0.1)),
             BorderColor::all(Color::WHITE),
             Interaction::default(),
+            RelativeCursorPosition::default(),
             Slider::default(),
             SliderValue(1.0),
             SliderRange::new(0.5, 3.0),
@@ -172,6 +175,7 @@ fn spawn_rhythm_section(parent: &mut ChildSpawnerCommands) {
                     ..default()
                 },
                 BackgroundColor(Color::srgb(0.8, 0.8, 0.8)),
+                Interaction::default(),
                 SliderThumb,
             ));
         });

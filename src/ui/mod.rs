@@ -25,6 +25,7 @@ impl Plugin for UiPlugin {
                     mode_toggle_system,
                     rhythm_mode_toggle_system,
                     style_slider_system,
+                    manual_slider_interaction,
                     update_rhythm_from_slider,
                     update_circle_layout,
                 ),

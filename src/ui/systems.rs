@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::ui::RelativeCursorPosition;
 use bevy_ui_widgets::{Slider, SliderRange, SliderThumb, SliderValue};
 use std::f32::consts::PI;
 
@@ -208,6 +209,41 @@ pub fn update_rhythm_from_slider(
             highlight_timer
                 .0
                 .set_duration(std::time::Duration::from_secs_f32(value));
+        }
+    }
+}
+
+/// Manual interaction system for the slider to ensure it works even if the plugin doesn't.
+pub fn manual_slider_interaction(
+    mut slider_query: Query<
+        (
+            Entity,
+            &Interaction,
+            &RelativeCursorPosition,
+            &SliderRange,
+            &ComputedNode,
+        ),
+        With<Slider>,
+    >,
+    mut commands: Commands,
+) {
+    for (entity, interaction, rel_pos, range, computed) in &mut slider_query {
+        if *interaction == Interaction::Pressed {
+            if let Some(pos) = rel_pos.normalized {
+                let size = computed.size();
+                let percent = if size.y > size.x {
+                    // Vertical slider: bottom to top.
+                    (1.0 - pos.y).clamp(0.0, 1.0)
+                } else {
+                    // Horizontal slider: left to right.
+                    pos.x.clamp(0.0, 1.0)
+                };
+                let new_val = range.start() + percent * (range.end() - range.start());
+                commands.trigger(bevy_ui_widgets::SetSliderValue {
+                    entity,
+                    change: bevy_ui_widgets::SliderValueChange::Absolute(new_val),
+                });
+            }
         }
     }
 }
