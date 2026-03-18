@@ -12,12 +12,95 @@ pub struct TrainingPlugin;
 
 impl Plugin for TrainingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (
+        app.add_message::<TargetInputEvent>()
+            .add_systems(Update, (
             update_sequence_logic,
+            handle_target_input,
+            handle_feedback,
+            update_feedback_visuals,
             sync_rhythm_timer,
             sync_target_visuals,
             sync_rhythm_ui
         ).chain());
+    }
+}
+
+/// System that handles visual feedback when a target is hit.
+fn handle_feedback(
+    mut message_reader: MessageReader<TargetInputEvent>,
+    current_number: Res<CurrentNumber>,
+    mut commands: Commands,
+    target_query: Query<(Entity, &NumberIndex)>,
+) {
+    for event in message_reader.read() {
+        // Find the target entity that corresponds to the active index.
+        // Actually, for incorrect hits, should we flash the incorrect target or the active one?
+        // Let's flash the active one for now, as it's the focal point.
+        for (entity, index) in &target_query {
+            if index.0 == current_number.0 {
+                let color = if event.correct {
+                    Color::srgb(0.0, 5.0, 0.0) // Bright Green
+                } else {
+                    Color::srgb(5.0, 5.0, 0.0) // Bright Yellow/Orange for incorrect? Or just Red.
+                };
+                
+                commands.entity(entity).insert((
+                    FeedbackTimer(Timer::from_seconds(0.3, TimerMode::Once)),
+                    TextColor(color),
+                ));
+            }
+        }
+    }
+}
+
+/// System that updates targets under feedback and removes the FeedbackTimer when finished.
+fn update_feedback_visuals(
+    time: Res<Time>,
+    mut commands: Commands,
+    mut query: Query<(Entity, &mut FeedbackTimer, &mut TextColor, &NumberIndex)>,
+    current_number: Res<CurrentNumber>,
+) {
+    for (entity, mut timer, mut color, index) in &mut query {
+        if timer.0.tick(time.delta()).just_finished() {
+            commands.entity(entity).remove::<FeedbackTimer>();
+            // Restore color based on current active state.
+            if index.0 == current_number.0 {
+                color.0 = crate::constants::HIGHLIGHT_COLOR;
+            } else {
+                color.0 = crate::constants::TARGET_COLOR;
+            }
+        }
+    }
+}
+
+/// System that handles user input for targets (keyboard and potentially mouse).
+fn handle_target_input(
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    sequence_state: Res<SequenceState>,
+    current_number: Res<CurrentNumber>,
+    mut message_writer: MessageWriter<TargetInputEvent>,
+) {
+    if !sequence_state.running {
+        return;
+    }
+
+    let active_value = crate::constants::LABELS[current_number.0 as usize];
+
+    // Check keys 1 to 8.
+    let pressed_value = if keyboard_input.just_pressed(KeyCode::Digit1) { Some(1) }
+    else if keyboard_input.just_pressed(KeyCode::Digit2) { Some(2) }
+    else if keyboard_input.just_pressed(KeyCode::Digit3) { Some(3) }
+    else if keyboard_input.just_pressed(KeyCode::Digit4) { Some(4) }
+    else if keyboard_input.just_pressed(KeyCode::Digit5) { Some(5) }
+    else if keyboard_input.just_pressed(KeyCode::Digit6) { Some(6) }
+    else if keyboard_input.just_pressed(KeyCode::Digit7) { Some(7) }
+    else if keyboard_input.just_pressed(KeyCode::Digit8) { Some(8) }
+    else { None };
+
+    if let Some(val) = pressed_value {
+        message_writer.write(TargetInputEvent {
+            correct: val == active_value,
+        });
     }
 }
 
@@ -45,7 +128,7 @@ fn update_sequence_logic(
                     new_duration = 0.1; // Cap at 0.1 seconds minimum frequency.
                 }
 
-                if new_duration != rhythm_state.duration {
+                if (new_duration - rhythm_state.duration).abs() > 0.01 {
                     rhythm_state.duration = new_duration;
                 }
             }

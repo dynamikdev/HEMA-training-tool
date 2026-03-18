@@ -21,3 +21,7 @@ pub struct RhythmModeButton;
 /// Marker for the text displaying the current rhythm duration.
 #[derive(Component)]
 pub struct RhythmText;
+
+/// Component to manage temporary visual feedback (correct/incorrect) on a target.
+#[derive(Component)]
+pub struct FeedbackTimer(pub Timer);

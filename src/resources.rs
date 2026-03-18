@@ -51,3 +51,10 @@ pub struct RhythmState {
     /// Progress counter used in Accelerate mode to track when to speed up.
     pub accelerate_counter: u8,
 }
+
+/// Event fired when the user provides input for a target.
+#[derive(Message)]
+pub struct TargetInputEvent {
+    /// Whether the input was correct.
+    pub correct: bool,
+}
