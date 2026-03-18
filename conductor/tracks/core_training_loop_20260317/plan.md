@@ -19,14 +19,14 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Core Logic Setup' (Protocol in workflow.md) b89a47d
 
 ## Phase 2: User Interaction and Feedback
-- [ ] Task: Implement UI controls for mode selection.
-    - [ ] Task: Add buttons for Random/Ordered and Constant/Accelerate.
-    - [ ] Task: Connect UI actions to game state.
-- [ ] Task: Implement user input handling for target interaction.
-    - [ ] Task: Detect user input (e.g., key press, click).
-    - [ ] Task: Validate user input against active target.
-- [ ] Task: Provide visual feedback on user interaction.
-    - [ ] Task: Indicate correct vs. incorrect input.
+- [x] Task: Implement UI controls for mode selection. 2a53e4f
+    - [x] Task: Add buttons for Random/Ordered and Constant/Accelerate. 2a53e4f
+    - [x] Task: Connect UI actions to game state. 2a53e4f
+- [x] Task: Implement user input handling for target interaction. 76c9a4e
+    - [x] Task: Detect user input (e.g., key press, click). 76c9a4e
+    - [x] Task: Validate user input against active target. 76c9a4e
+- [x] Task: Provide visual feedback on user interaction. 76c9a4e
+    - [x] Task: Indicate correct vs. incorrect input. 76c9a4e
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: User Interaction and Feedback' (Protocol in workflow.md)
 
 ## Phase 3: Polish and Refinement
