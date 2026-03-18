@@ -1,6 +1,6 @@
 # Implementation Plan: Implement core reaction training loop
 
-## Phase 1: Core Logic Setup
+## Phase 1: Core Logic Setup [checkpoint: b89a47d]
 - [x] Task: Set up basic Bevy app structure. 2a53e4f
     - [x] Task: Initialize Bevy app and window. 2a53e4f
     - [x] Task: Add necessary Bevy plugins. 2a53e4f
@@ -16,7 +16,7 @@
 - [x] Task: Implement rhythm modes logic. a13354c
     - [x] Task: Implement constant rhythm timer. a13354c
     - [x] Task: Implement accelerating rhythm timer. a13354c
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Core Logic Setup' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Core Logic Setup' (Protocol in workflow.md) b89a47d
 
 ## Phase 2: User Interaction and Feedback
 - [ ] Task: Implement UI controls for mode selection.
