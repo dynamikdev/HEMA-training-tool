@@ -12,6 +12,9 @@ To provide a simple, effective, and platform-agnostic reaction training tool for
     - Random and Ordered modes.
     - Constant and Accelerating rhythms.
 - **Dynamic Layout**: Automatically scales to window size for optimal visibility.
+- **Interactive Training**:
+    - Real-time keyboard input (1-8) to interact with targets.
+    - Instant visual feedback for correct and incorrect actions.
 
 ## Technical Scope
 - **Platform**: Desktop Application (Windows, Linux, macOS) via Bevy engine.
