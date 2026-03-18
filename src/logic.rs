@@ -14,6 +14,7 @@ impl Plugin for TrainingPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, (
             update_sequence_logic,
+            sync_rhythm_timer,
             sync_target_visuals,
             sync_rhythm_ui
         ).chain());
@@ -46,9 +47,6 @@ fn update_sequence_logic(
 
                 if new_duration != rhythm_state.duration {
                     rhythm_state.duration = new_duration;
-                    timer
-                        .0
-                        .set_duration(std::time::Duration::from_secs_f32(new_duration));
                 }
             }
         }
@@ -120,5 +118,15 @@ fn sync_rhythm_ui(
             entity: slider_entity,
             change: SliderValueChange::Absolute(duration),
         });
+    }
+}
+
+/// System that syncs the timer's duration with RhythmState.
+fn sync_rhythm_timer(
+    rhythm_state: Res<RhythmState>,
+    mut timer: ResMut<HighlightTimer>,
+) {
+    if rhythm_state.is_changed() {
+        timer.0.set_duration(std::time::Duration::from_secs_f32(rhythm_state.duration));
     }
 }
