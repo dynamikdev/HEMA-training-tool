@@ -4,7 +4,6 @@ use bevy::prelude::*;
 
 use super::settings::spawn_settings_panel;
 use super::target::spawn_target_circle;
-use crate::constants::PANEL_WIDTH;
 
 /// Initial setup for the UI, including the camera, the settings panel, and the target numbers.
 pub fn setup(mut commands: Commands) {
@@ -31,7 +30,5 @@ fn spawn_camera(commands: &mut Commands) {
         Camera2d::default(),
         Tonemapping::TonyMcMapface,
         Bloom::default(),
-        // Offset the camera so (0,0) is centered in the space remaining after the panel.
-        Transform::from_xyz(PANEL_WIDTH / 2.0, 0.0, 0.0),
     ));
 }

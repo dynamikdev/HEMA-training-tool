@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 use bevy::ui::RelativeCursorPosition;
-use bevy_ui_widgets::{Slider, SliderRange, SliderStep, SliderThumb, SliderValue};
+use bevy_ui_widgets::{
+    observe, slider_self_update, Slider, SliderRange, SliderStep, SliderThumb, SliderValue,
+    TrackClick,
+};
 
 use crate::components::*;
 use crate::constants::PANEL_WIDTH;
@@ -161,10 +164,14 @@ fn spawn_rhythm_section(parent: &mut ChildSpawnerCommands) {
             BorderColor::all(Color::WHITE),
             Interaction::default(),
             RelativeCursorPosition::default(),
-            Slider::default(),
+            Slider {
+                track_click: TrackClick::Snap,
+                ..default()
+            },
             SliderValue(1.0),
             SliderRange::new(0.5, 3.0),
             SliderStep(0.1),
+            observe(slider_self_update),
         ))
         .with_children(|parent| {
             parent.spawn((

@@ -1,7 +1,7 @@
 //! Core training simulation logic for target highlighting and rhythm control.
 
 use bevy::prelude::*;
-use bevy_ui_widgets::{SetSliderValue, Slider, SliderValueChange};
+use bevy_ui_widgets::{Slider, SliderValue};
 use rand::Rng;
 
 use crate::components::*;
@@ -114,10 +114,7 @@ fn sync_rhythm_ui(
     }
     
     for slider_entity in &slider_query {
-        commands.trigger(SetSliderValue {
-            entity: slider_entity,
-            change: SliderValueChange::Absolute(duration),
-        });
+        commands.entity(slider_entity).insert(SliderValue(duration));
     }
 }
 

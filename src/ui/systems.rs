@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy::ui::RelativeCursorPosition;
 use bevy_ui_widgets::{Slider, SliderRange, SliderThumb, SliderValue};
 use std::f32::consts::PI;
 
@@ -183,7 +182,8 @@ pub fn update_circle_layout(
         let x = angle.cos() * radius;
         let y = angle.sin() * radius;
 
-        transform.translation.x = x;
+        // Offset X to center the circle in the remaining area to the left of the side panel.
+        transform.translation.x = x - PANEL_WIDTH / 2.0;
         transform.translation.y = y;
         text_font.font_size = dynamic_font_size.max(10.0); // Ensure readability on small windows.
     }
@@ -200,7 +200,7 @@ pub fn update_rhythm_from_slider(
         // Snap to grid of 0.1s.
         let value = (slider_val.0 * 10.0).round() / 10.0;
 
-        if rhythm_state.duration != value {
+        if (rhythm_state.duration - value).abs() > 0.01 {
             rhythm_state.duration = value;
             for mut text in &mut text_query {
                 text.0 = format!("Rhythm: {:.1}s", value);
@@ -209,41 +209,6 @@ pub fn update_rhythm_from_slider(
             highlight_timer
                 .0
                 .set_duration(std::time::Duration::from_secs_f32(value));
-        }
-    }
-}
-
-/// Manual interaction system for the slider to ensure it works even if the plugin doesn't.
-pub fn manual_slider_interaction(
-    mut slider_query: Query<
-        (
-            Entity,
-            &Interaction,
-            &RelativeCursorPosition,
-            &SliderRange,
-            &ComputedNode,
-        ),
-        With<Slider>,
-    >,
-    mut commands: Commands,
-) {
-    for (entity, interaction, rel_pos, range, computed) in &mut slider_query {
-        if *interaction == Interaction::Pressed {
-            if let Some(pos) = rel_pos.normalized {
-                let size = computed.size();
-                let percent = if size.y > size.x {
-                    // Vertical slider: bottom to top.
-                    (1.0 - pos.y).clamp(0.0, 1.0)
-                } else {
-                    // Horizontal slider: left to right.
-                    pos.x.clamp(0.0, 1.0)
-                };
-                let new_val = range.start() + percent * (range.end() - range.start());
-                commands.trigger(bevy_ui_widgets::SetSliderValue {
-                    entity,
-                    change: bevy_ui_widgets::SliderValueChange::Absolute(new_val),
-                });
-            }
         }
     }
 }
