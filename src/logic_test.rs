@@ -4,7 +4,6 @@ mod tests {
     use bevy::prelude::*;
     use crate::logic::TrainingPlugin;
     use crate::resources::*;
-    use crate::components::*;
     use crate::constants::LABELS;
 
     #[test]

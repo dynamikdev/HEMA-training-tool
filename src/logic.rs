@@ -5,7 +5,6 @@ use bevy_ui_widgets::{SetSliderValue, Slider, SliderValueChange};
 use rand::Rng;
 
 use crate::components::*;
-use crate::constants::LABELS;
 use crate::resources::*;
 
 /// Plugin that handles the core training logic, such as the highlighting system.
@@ -13,21 +12,21 @@ pub struct TrainingPlugin;
 
 impl Plugin for TrainingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, highlight_system);
+        app.add_systems(Update, (
+            update_sequence_logic,
+            sync_target_visuals,
+            sync_rhythm_ui
+        ).chain());
     }
 }
 
-/// System that handles the periodic highlighting of target numbers based on the selected mode and rhythm.
-fn highlight_system(
+/// System that handles the core training logic: timer ticking, sequence generation, and rhythm acceleration.
+fn update_sequence_logic(
     time: Res<Time>,
     mut timer: ResMut<HighlightTimer>,
-    mut highlighted_number: ResMut<CurrentNumber>,
-    mut query: Query<(&NumberIndex, &mut TextColor)>,
+    mut current_number: ResMut<CurrentNumber>,
     mut sequence_state: ResMut<SequenceState>,
     mut rhythm_state: ResMut<RhythmState>,
-    mut text_query: Query<&mut Text, With<RhythmText>>,
-    slider_query: Query<Entity, With<Slider>>,
-    mut commands: Commands,
 ) {
     if !sequence_state.running {
         return;
@@ -50,17 +49,6 @@ fn highlight_system(
                     timer
                         .0
                         .set_duration(std::time::Duration::from_secs_f32(new_duration));
-
-                    // Sync UI text display and the slider widget position.
-                    for mut text in &mut text_query {
-                        text.0 = format!("Rhythm: {:.1}s", new_duration);
-                    }
-                    for slider_entity in &slider_query {
-                        commands.trigger(SetSliderValue {
-                            entity: slider_entity,
-                            change: SliderValueChange::Absolute(new_duration),
-                        });
-                    }
                 }
             }
         }
@@ -71,7 +59,7 @@ fn highlight_system(
                 let mut rng = rand::rng();
                 let mut target = rng.random_range(0..=7);
                 // Avoid highlighting the same number twice in a row for better training variety.
-                while target == highlighted_number.0 {
+                while target == current_number.0 {
                     target = rng.random_range(0..=7);
                 }
                 target
@@ -81,23 +69,56 @@ fn highlight_system(
                 sequence_state.current_ordered_value =
                     (sequence_state.current_ordered_value % 8) + 1;
                 // Find index of this value in the circular LABELS layout.
-                LABELS
+                crate::constants::LABELS
                     .iter()
                     .position(|&l| l == sequence_state.current_ordered_value)
                     .unwrap_or(0) as u8
             }
         };
 
-        highlighted_number.0 = target_index;
+        current_number.0 = target_index;
+    }
+}
 
-        // Apply visual feedback by changing the color of the target text.
-        for (index, mut color) in &mut query {
-            if index.0 == target_index {
-                // High-intensity red for the active target.
-                color.0 = Color::srgb(5.0, 0.0, 0.0);
-            } else {
-                color.0 = Color::WHITE;
-            }
+/// System that syncs the visual state of the targets with the CurrentNumber resource.
+fn sync_target_visuals(
+    current_number: Res<CurrentNumber>,
+    mut query: Query<(&NumberIndex, &mut TextColor)>,
+) {
+    if !current_number.is_changed() {
+        return;
+    }
+
+    for (index, mut color) in &mut query {
+        if index.0 == current_number.0 {
+            color.0 = crate::constants::HIGHLIGHT_COLOR;
+        } else {
+            color.0 = crate::constants::TARGET_COLOR;
         }
+    }
+}
+
+/// System that syncs the UI elements (text and slider) with changes in RhythmState.
+fn sync_rhythm_ui(
+    rhythm_state: Res<RhythmState>,
+    mut text_query: Query<&mut Text, With<RhythmText>>,
+    slider_query: Query<Entity, With<Slider>>,
+    mut commands: Commands,
+) {
+    if !rhythm_state.is_changed() {
+        return;
+    }
+
+    let duration = rhythm_state.duration;
+
+    for mut text in &mut text_query {
+        text.0 = format!("Rhythm: {:.1}s", duration);
+    }
+    
+    for slider_entity in &slider_query {
+        commands.trigger(SetSliderValue {
+            entity: slider_entity,
+            change: SliderValueChange::Absolute(duration),
+        });
     }
 }
