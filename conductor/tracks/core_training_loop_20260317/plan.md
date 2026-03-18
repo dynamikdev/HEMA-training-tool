@@ -30,9 +30,9 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: User Interaction and Feedback' (Protocol in workflow.md) c231fd0
 
 ## Phase 3: Polish and Refinement
-- [ ] Task: Adjust UI for responsiveness and aesthetics.
-    - [ ] Task: Ensure targets scale correctly.
-    - [ ] Task: Apply high-contrast styling.
-- [ ] Task: Add basic performance tracking (session only).
-    - [ ] Task: Track correct/incorrect counts.
+- [x] Task: Adjust UI for responsiveness and aesthetics. b89a47d
+    - [x] Task: Ensure targets scale correctly. b89a47d
+    - [x] Task: Apply high-contrast styling. b89a47d
+- [x] Task: Add basic performance tracking (session only). ca08bec
+    - [x] Task: Track correct/incorrect counts. ca08bec
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Polish and Refinement' (Protocol in workflow.md)
