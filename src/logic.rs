@@ -14,10 +14,21 @@ impl Plugin for TrainingPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, (
             update_sequence_logic,
+            handle_session_controls,
             sync_rhythm_timer,
             sync_target_visuals,
             sync_rhythm_ui
         ).chain());
+    }
+}
+
+/// System that handles overall session controls like Play/Pause.
+fn handle_session_controls(
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut sequence_state: ResMut<SequenceState>,
+) {
+    if keyboard_input.just_pressed(KeyCode::Space) {
+        sequence_state.running = !sequence_state.running;
     }
 }
 

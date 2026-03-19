@@ -175,7 +175,7 @@ mod tests {
         // Press Space again.
         {
             let mut input = app.world_mut().get_resource_mut::<ButtonInput<KeyCode>>().unwrap();
-            input.clear_just_pressed(KeyCode::Space);
+            input.release(KeyCode::Space);
             input.press(KeyCode::Space);
         }
 
