@@ -7,7 +7,7 @@
 - [x] Task: Conductor - User Manual Verification 'Remove Target Input & Ensure Auto-Timer' (Protocol in workflow.md) 9ce1900
 
 ## Phase 2: Implement Spacebar Play/Pause Toggle
-- [ ] Task: Add a test in `src/logic_test.rs` for toggling the session state (Play/Pause) using the Spacebar.
+- [x] Task: Add a test in `src/logic_test.rs` for toggling the session state (Play/Pause) using the Spacebar. 08b30ec
 - [ ] Task: Update `src/logic.rs` to handle Spacebar input and toggle the `SequenceState` between `Playing` and `Paused`.
 - [ ] Task: Conductor - User Manual Verification 'Implement Spacebar Play/Pause Toggle' (Protocol in workflow.md)
 
