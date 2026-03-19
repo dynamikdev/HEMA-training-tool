@@ -16,7 +16,6 @@ impl Plugin for TrainingPlugin {
             update_sequence_logic,
             handle_session_controls,
             sync_rhythm_timer,
-            sync_target_visuals,
             sync_rhythm_ui
         ).chain());
     }
@@ -86,24 +85,6 @@ fn update_sequence_logic(
         };
 
         current_number.0 = target_index;
-    }
-}
-
-/// System that syncs the visual state of the targets with the CurrentNumber resource.
-fn sync_target_visuals(
-    current_number: Res<CurrentNumber>,
-    mut query: Query<(&NumberIndex, &mut TextColor)>,
-) {
-    if !current_number.is_changed() {
-        return;
-    }
-
-    for (index, mut color) in &mut query {
-        if index.0 == current_number.0 {
-            color.0 = crate::constants::HIGHLIGHT_COLOR;
-        } else {
-            color.0 = crate::constants::TARGET_COLOR;
-        }
     }
 }
 
