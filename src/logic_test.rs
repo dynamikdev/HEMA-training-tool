@@ -148,4 +148,40 @@ mod tests {
         assert!((rhythm_state.duration - 0.1).abs() < 0.01);
     }
 
+    #[test]
+    fn test_toggle_play_pause_with_spacebar() {
+        let mut app = setup_app();
+        
+        // Initial state should be false if using default (but setup_app sets it to true).
+        // Let's set it to false explicitly to test toggle to true.
+        {
+            let mut seq_state = app.world_mut().get_resource_mut::<SequenceState>().unwrap();
+            seq_state.running = false;
+        }
+
+        app.update();
+
+        // Press Space.
+        {
+            let mut input = app.world_mut().get_resource_mut::<ButtonInput<KeyCode>>().unwrap();
+            input.press(KeyCode::Space);
+        }
+
+        app.update();
+
+        let seq_state = app.world().get_resource::<SequenceState>().unwrap();
+        assert!(seq_state.running);
+
+        // Press Space again.
+        {
+            let mut input = app.world_mut().get_resource_mut::<ButtonInput<KeyCode>>().unwrap();
+            input.clear_just_pressed(KeyCode::Space);
+            input.press(KeyCode::Space);
+        }
+
+        app.update();
+
+        let seq_state = app.world().get_resource::<SequenceState>().unwrap();
+        assert!(!seq_state.running);
+    }
 }
