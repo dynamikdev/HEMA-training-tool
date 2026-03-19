@@ -2,7 +2,7 @@
 
 ## Phase 1: Remove Target Input & Ensure Auto-Timer
 - [x] Task: Update `src/logic_test.rs` to remove tests related to `handle_target_input` and keyboard keys 1-8. Ensure tests for `update_sequence_logic` verify auto-transitioning without input. 864dc5d
-- [ ] Task: Update `src/logic.rs` to remove the `handle_target_input` system, `TargetInputEvent`, and modify `update_sequence_logic` to smoothly auto-transition targets.
+- [x] Task: Update `src/logic.rs` to remove the `handle_target_input` system, `TargetInputEvent`, and modify `update_sequence_logic` to smoothly auto-transition targets. 7946041
 - [ ] Task: Update `src/main.rs` to remove the `handle_target_input` system and `TargetInputEvent` registration.
 - [ ] Task: Conductor - User Manual Verification 'Remove Target Input & Ensure Auto-Timer' (Protocol in workflow.md)
 
