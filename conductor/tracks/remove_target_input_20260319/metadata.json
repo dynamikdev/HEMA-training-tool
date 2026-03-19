@@ -1,0 +1,8 @@
+{
+  "track_id": "remove_target_input_20260319",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-03-19T00:00:00Z",
+  "updated_at": "2026-03-19T00:00:00Z",
+  "description": "remove the keystroke interraction with the circle. Since the project is use to diplay sword mouvement to do in order to train ourself. Use key stroke to follow the display is useless. use the space bar to interract qith the start/pause action"
+}
