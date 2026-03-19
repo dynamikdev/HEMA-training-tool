@@ -14,8 +14,7 @@ mod tests {
            .insert_resource(HighlightTimer(Timer::from_seconds(1.0, TimerMode::Repeating)))
            .insert_resource(CurrentNumber(0))
            .insert_resource(SequenceState { running: true, ..default() })
-           .insert_resource(RhythmState { duration: 1.0, mode: RhythmMode::Constant, accelerate_counter: 0 })
-           .insert_resource(SessionStats::default());
+           .insert_resource(RhythmState { duration: 1.0, mode: RhythmMode::Constant, accelerate_counter: 0 });
         app
     }
 
