@@ -14,7 +14,10 @@
 ## Phase 3: Remove Visual Feedback and Highlights
 - [x] Task: Update `src/components_test.rs` and `src/logic_test.rs` to remove tests related to feedback colors, timers, and active highlights. (No tests found) 2861706
 - [x] Task: Update `src/components.rs` to remove `FeedbackTimer` and related visual feedback components. 595f538
-- [ ] Task: Update `src/constants.rs` to remove success, failure, and highlight color definitions (leaving just standard text/target appearance).
-- [ ] Task: Update `src/logic.rs` to remove `handle_feedback`, `update_feedback_visuals`, and modify `sync_target_visuals` to prevent color changes.
+- [x] Task: Update `src/constants.rs` to remove success, failure, and highlight color definitions (leaving just standard text/target appearance). 08b30ec
+- [~] Task: Update `src/logic.rs` to remove `handle_feedback`, `update_feedback_visuals`, and modify `sync_target_visuals` to prevent color changes.
 - [ ] Task: Update `src/main.rs` to remove the feedback systems from the application build.
 - [ ] Task: Conductor - User Manual Verification 'Remove Visual Feedback and Highlights' (Protocol in workflow.md)
+
+## Phase: Review Fixes
+- [x] Task: Apply review suggestions 7f62041
