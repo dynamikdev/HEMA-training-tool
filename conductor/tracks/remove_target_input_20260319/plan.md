@@ -1,10 +1,10 @@
 # Implementation Plan: Remove Target Keystroke Interaction
 
-## Phase 1: Remove Target Input & Ensure Auto-Timer
+## Phase 1: Remove Target Input & Ensure Auto-Timer [checkpoint: 9ce1900]
 - [x] Task: Update `src/logic_test.rs` to remove tests related to `handle_target_input` and keyboard keys 1-8. Ensure tests for `update_sequence_logic` verify auto-transitioning without input. 864dc5d
 - [x] Task: Update `src/logic.rs` to remove the `handle_target_input` system, `TargetInputEvent`, and modify `update_sequence_logic` to smoothly auto-transition targets. 7946041
 - [x] Task: Update `src/main.rs` to remove the `handle_target_input` system and `TargetInputEvent` registration. 7946041
-- [ ] Task: Conductor - User Manual Verification 'Remove Target Input & Ensure Auto-Timer' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Remove Target Input & Ensure Auto-Timer' (Protocol in workflow.md) 9ce1900
 
 ## Phase 2: Implement Spacebar Play/Pause Toggle
 - [ ] Task: Add a test in `src/logic_test.rs` for toggling the session state (Play/Pause) using the Spacebar.
