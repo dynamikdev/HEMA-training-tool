@@ -20,3 +20,6 @@
 - [x] Task: Fine-tune Bloom parameters (intensity, threshold) to match the "red and glowing" requirement. 46f94d7
 - [x] Task: Verify the arrow's visibility and contrast against the existing circle and background. 813e3c9
 - [x] Task: Conductor - User Manual Verification 'Refinement & Style Compliance' (Protocol in workflow.md)
+
+## Phase: Review Fixes
+- [x] Task: Apply review suggestions c6655ce
