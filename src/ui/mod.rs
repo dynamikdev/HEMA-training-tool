@@ -6,6 +6,8 @@
 
 pub mod settings;
 pub mod setup;
+#[cfg(test)]
+mod setup_test;
 pub mod systems;
 pub mod target;
 

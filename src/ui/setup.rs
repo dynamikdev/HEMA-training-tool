@@ -5,6 +5,7 @@
 
 use bevy::core_pipeline::tonemapping::Tonemapping;
 use bevy::post_process::bloom::Bloom;
+use bevy::render::view::Hdr;
 use bevy::prelude::*;
 
 use super::settings::spawn_settings_panel;
@@ -45,6 +46,7 @@ pub fn setup(mut commands: Commands) {
 fn spawn_camera(commands: &mut Commands) {
     commands.spawn((
         Camera2d::default(),
+        Hdr,
         Tonemapping::TonyMcMapface,
         Bloom::default(),
     ));
