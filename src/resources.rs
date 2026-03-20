@@ -80,3 +80,13 @@ pub struct RhythmState {
 /// to determine the endpoint of the visual guide arrow.
 #[derive(Resource, Default, Debug)]
 pub struct ArrowTarget(pub Option<u8>);
+
+/// Tracks the progress of the arrow's "shoot" animation.
+///
+/// The progress value ranges from 0.0 (arrow just starting at the origin)
+/// to 1.0 (arrow fully extended to the destination).
+#[derive(Resource, Default, Debug)]
+pub struct ArrowAnimationState {
+    /// The current interpolation factor (0.0 to 1.0).
+    pub progress: f32,
+}

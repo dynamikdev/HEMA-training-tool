@@ -239,4 +239,50 @@ mod tests {
         let arrow_target = app.world().get_resource::<ArrowTarget>().unwrap();
         assert_eq!(arrow_target.0, Some(2));
     }
+
+    /// Verifies that the arrow animation progress resets and increments over time.
+    #[test]
+    fn test_arrow_animation_progress() {
+        let mut app = setup_app();
+        app.insert_resource(ArrowAnimationState::default());
+        
+        // Initial update.
+        app.update();
+        
+        // Change target to trigger animation reset.
+        {
+            let mut current_number = app.world_mut().get_resource_mut::<CurrentNumber>().unwrap();
+            current_number.0 = 1;
+        }
+        
+        app.update();
+        
+        // Progress should be reset to 0.0.
+        let animation_state = app.world().get_resource::<ArrowAnimationState>().unwrap();
+        assert_eq!(animation_state.progress, 0.0);
+
+        // Advance time (e.g., 0.1s).
+        // Since setup_app uses MinimalPlugins, we might need to manually tick time.
+        {
+            let mut time = app.world_mut().get_resource_mut::<Time>().unwrap();
+            time.advance_by(std::time::Duration::from_millis(100));
+        }
+        
+        app.update();
+        
+        let animation_state = app.world().get_resource::<ArrowAnimationState>().unwrap();
+        assert!(animation_state.progress > 0.0);
+        assert!(animation_state.progress < 1.0);
+
+        // Advance time further (e.g., another 0.2s to finish).
+        {
+            let mut time = app.world_mut().get_resource_mut::<Time>().unwrap();
+            time.advance_by(std::time::Duration::from_millis(200));
+        }
+        
+        app.update();
+        
+        let animation_state = app.world().get_resource::<ArrowAnimationState>().unwrap();
+        assert_eq!(animation_state.progress, 1.0);
+    }
 }
