@@ -17,6 +17,7 @@ use crate::resources::*;
 /// This system updates the [`SequenceState`] based on button clicks and
 /// modifies the button's appearance (text and color) to provide visual
 /// feedback on the current state of the simulation.
+#[allow(clippy::type_complexity)]
 pub fn sequence_control_button_system(
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor, &Children),
@@ -60,6 +61,7 @@ pub fn sequence_control_button_system(
 ///
 /// Switches the [`SequenceMode`] between Random and Ordered. It also resets
 /// internal counters to ensure the transition between modes is clean and predictable.
+#[allow(clippy::type_complexity)]
 pub fn mode_toggle_system(
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor, &Children),
@@ -103,6 +105,7 @@ pub fn mode_toggle_system(
 /// Switches the [`RhythmMode`] between Constant and Accelerate. When switching,
 /// it resets the acceleration progress to ensure the user has time to adjust
 /// to the new behavior.
+#[allow(clippy::type_complexity)]
 pub fn rhythm_mode_toggle_system(
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor, &Children),

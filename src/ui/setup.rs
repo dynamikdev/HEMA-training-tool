@@ -45,7 +45,7 @@ pub fn setup(mut commands: Commands) {
 /// visual feedback during training.
 fn spawn_camera(commands: &mut Commands) {
     commands.spawn((
-        Camera2d::default(),
+        Camera2d,
         Hdr,
         Tonemapping::TonyMcMapface,
         Bloom {

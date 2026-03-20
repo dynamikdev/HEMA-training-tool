@@ -177,7 +177,6 @@ fn spawn_rhythm_section(parent: &mut ChildSpawnerCommands) {
             RelativeCursorPosition::default(),
             Slider {
                 track_click: TrackClick::Snap,
-                ..default()
             },
             SliderValue(1.0),
             SliderRange::new(0.5, 3.0),
