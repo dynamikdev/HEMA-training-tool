@@ -48,6 +48,9 @@ fn spawn_camera(commands: &mut Commands) {
         Camera2d::default(),
         Hdr,
         Tonemapping::TonyMcMapface,
-        Bloom::default(),
+        Bloom {
+            intensity: 0.4,
+            ..default()
+        },
     ));
 }
