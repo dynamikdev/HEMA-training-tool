@@ -10,11 +10,11 @@
 - [x] Task: Implement a system in `src/logic.rs` that calculates the arrow's start and end points when `CurrentNumber` changes. d5ce6c9
 - [x] Task: Conductor - User Manual Verification 'Arrow Logic & Data Structures' (Protocol in workflow.md)
 
-## Phase 3: Visual Rendering & Animation
+## Phase 3: Visual Rendering & Animation [checkpoint: e78b2ae]
 - [x] Task: Write tests for the arrow's "shoot" animation logic (path interpolation). 62b26b4
 - [x] Task: Implement the arrow rendering system using Bevy's `Gizmos` (or a custom mesh) with an emissive color to trigger Bloom. ce7a014
 - [x] Task: Implement the "Animated Path" logic to make the arrow shoot from origin to destination. ce7a014
-- [ ] Task: Conductor - User Manual Verification 'Visual Rendering & Animation' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Visual Rendering & Animation' (Protocol in workflow.md)
 
 ## Phase 4: Refinement & Style Compliance
 - [ ] Task: Fine-tune Bloom parameters (intensity, threshold) to match the "red and glowing" requirement.
