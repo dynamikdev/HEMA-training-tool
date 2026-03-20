@@ -1,7 +1,7 @@
 # Implementation Plan: Glowing Arrow Visual Guide
 
 ## Phase 1: HDR & Bloom Setup
-- [~] Task: Update `src/main.rs` to enable HDR on the primary camera and add the `Bloom` component.
+- [x] Task: Update `src/main.rs` to enable HDR on the primary camera and add the `Bloom` component. fa767b3
 - [ ] Task: Conductor - User Manual Verification 'HDR & Bloom Setup' (Protocol in workflow.md)
 
 ## Phase 2: Arrow Logic & Data Structures
