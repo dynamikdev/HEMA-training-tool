@@ -288,7 +288,7 @@ pub fn render_glowing_arrow(
 
     // Use a high-intensity red color (exceeding 1.0 in some channels) to trigger
     // the Bloom glow effect on the primary camera.
-    let color = LinearRgba::new(10.0, 0.0, 0.0, 1.0);
+    let color = LinearRgba::new(20.0, 0.0, 0.0, 1.0);
 
     gizmos.arrow_2d(start_pos, current_end_pos, color);
 }
