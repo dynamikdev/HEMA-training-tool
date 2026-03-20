@@ -40,3 +40,10 @@ pub struct RhythmModeButton;
 /// duration changes (e.g., via the slider or during acceleration).
 #[derive(Component)]
 pub struct RhythmText;
+
+/// Marker for the glowing arrow entity.
+///
+/// This component is used to identify and update the visual guide that points
+/// from the active target to its diametrically opposite target.
+#[derive(Component)]
+pub struct GlowingArrow;

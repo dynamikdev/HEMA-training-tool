@@ -19,5 +19,6 @@ mod tests {
         let _ = SequenceModeButton;
         let _ = RhythmModeButton;
         let _ = RhythmText;
+        let _ = GlowingArrow;
     }
 }
