@@ -8,6 +8,8 @@ use bevy::post_process::bloom::Bloom;
 use bevy::render::view::Hdr;
 use bevy::prelude::*;
 
+use crate::constants::BACKGROUND_COLOR;
+use crate::resources::Typography;
 use super::settings::spawn_settings_panel;
 use super::target::spawn_target_circle;
 
@@ -18,24 +20,35 @@ use super::target::spawn_target_circle;
 /// 2. The main layout container (root node).
 /// 3. The interactive settings panel.
 /// 4. The circular training target interface.
-pub fn setup(mut commands: Commands) {
+pub fn setup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut typography: ResMut<Typography>,
+) {
+    // Load Kinetic Brutalism fonts.
+    typography.space_grotesk = asset_server.load("fonts/SpaceGrotesk-Bold.ttf");
+    typography.work_sans = asset_server.load("fonts/WorkSans-Medium.ttf");
+
     spawn_camera(&mut commands);
 
     // UI Root Node: Full screen container.
     // We use FlexEnd to push the settings panel to the right side of the screen,
     // leaving the central area clear for the target circle.
     commands
-        .spawn(Node {
-            width: Val::Percent(100.0),
-            height: Val::Percent(100.0),
-            justify_content: JustifyContent::FlexEnd,
-            ..default()
-        })
+        .spawn((
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                justify_content: JustifyContent::FlexEnd,
+                ..default()
+            },
+            BackgroundColor(BACKGROUND_COLOR),
+        ))
         .with_children(|parent| {
-            spawn_settings_panel(parent);
+            spawn_settings_panel(parent, &typography);
         });
 
-    spawn_target_circle(&mut commands);
+    spawn_target_circle(&mut commands, &typography);
 }
 
 /// Configures and spawns the main 2D camera.

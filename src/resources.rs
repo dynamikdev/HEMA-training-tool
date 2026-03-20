@@ -90,3 +90,15 @@ pub struct ArrowAnimationState {
     /// The current interpolation factor (0.0 to 1.0).
     pub progress: f32,
 }
+
+/// Stores font handles for the Kinetic Brutalism design system.
+///
+/// This resource ensures that the specialized typography (Space Grotesk for
+/// display/headers and Work Sans for labels) is accessible to all UI systems.
+#[derive(Resource, Debug, Default)]
+pub struct Typography {
+    /// Geometric display font for target numbers and display elements.
+    pub space_grotesk: Handle<Font>,
+    /// Mechanical, legible font for technical labels and UI controls.
+    pub work_sans: Handle<Font>,
+}

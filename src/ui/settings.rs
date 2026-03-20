@@ -11,103 +11,105 @@ use bevy_ui_widgets::{
 };
 
 use crate::components::*;
-use crate::constants::PANEL_WIDTH;
+use crate::constants::{PANEL_WIDTH, SURFACE_LOW, NEUTRAL_TEXT, GHOST_BORDER};
+use crate::resources::Typography;
 
 /// Spawns the settings configuration panel.
 ///
 /// The panel is positioned on the right side of the screen and contains
 /// all the controls for the training tool.
-pub fn spawn_settings_panel(parent: &mut ChildSpawnerCommands) {
+pub fn spawn_settings_panel(parent: &mut ChildSpawnerCommands, typography: &Typography) {
     parent
         .spawn((
             Node {
                 width: Val::Px(PANEL_WIDTH),
                 height: Val::Percent(100.0),
-                border: UiRect::left(Val::Px(2.0)),
                 flex_direction: FlexDirection::Column,
-                padding: UiRect::all(Val::Px(10.0)),
+                padding: UiRect::all(Val::Px(20.0)),
                 ..default()
             },
-            BackgroundColor(Color::srgb(0.2, 0.2, 0.2)),
-            BorderColor::all(Color::WHITE),
+            BackgroundColor(SURFACE_LOW),
         ))
         .with_children(|parent| {
             // Panel Title
             parent.spawn((
-                Text::new("Settings"),
+                Text::new("SETTINGS"),
                 TextFont {
+                    font: typography.space_grotesk.clone(),
                     font_size: 40.0,
                     ..default()
                 },
-                TextColor(Color::WHITE),
+                TextColor(NEUTRAL_TEXT),
                 Node {
-                    margin: UiRect::bottom(Val::Px(20.0)),
+                    margin: UiRect::bottom(Val::Px(30.0)),
                     ..default()
                 },
             ));
 
-            spawn_mode_toggle_button(parent);
-            spawn_sequence_control_button(parent);
-            spawn_rhythm_section(parent);
+            spawn_mode_toggle_button(parent, typography);
+            spawn_sequence_control_button(parent, typography);
+            spawn_rhythm_section(parent, typography);
         });
 }
 
 /// Spawns the button for toggling sequence mode (Random vs Ordered).
-fn spawn_mode_toggle_button(parent: &mut ChildSpawnerCommands) {
+fn spawn_mode_toggle_button(parent: &mut ChildSpawnerCommands, typography: &Typography) {
     parent
         .spawn((
             Button,
             Node {
                 width: Val::Percent(100.0),
                 height: Val::Px(65.0),
-                border: UiRect::all(Val::Px(2.0)),
+                border: UiRect::all(Val::Px(1.0)),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
-                margin: UiRect::bottom(Val::Px(10.0)),
+                margin: UiRect::bottom(Val::Px(15.0)),
                 ..default()
             },
-            BorderColor::all(Color::WHITE),
-            BackgroundColor(Color::srgb(0.15, 0.15, 0.15)),
+            BorderColor::all(GHOST_BORDER),
+            BackgroundColor(Color::NONE),
             SequenceModeButton,
         ))
         .with_children(|parent| {
             parent.spawn((
                 Text::new("Mode: Random"),
                 TextFont {
-                    font_size: 25.0,
+                    font: typography.work_sans.clone(),
+                    font_size: 20.0,
                     ..default()
                 },
-                TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                TextColor(NEUTRAL_TEXT),
             ));
         });
 }
 
 /// Spawns the button for starting/stopping the training sequence.
-fn spawn_sequence_control_button(parent: &mut ChildSpawnerCommands) {
+fn spawn_sequence_control_button(parent: &mut ChildSpawnerCommands, typography: &Typography) {
     parent
         .spawn((
             Button,
             Node {
                 width: Val::Percent(100.0),
                 height: Val::Px(65.0),
-                border: UiRect::all(Val::Px(2.0)),
+                border: UiRect::all(Val::Px(1.0)),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
-                margin: UiRect::bottom(Val::Px(10.0)),
+                margin: UiRect::bottom(Val::Px(15.0)),
                 ..default()
             },
-            BorderColor::all(Color::WHITE),
-            BackgroundColor(Color::srgb(0.15, 0.15, 0.15)),
+            BorderColor::all(GHOST_BORDER),
+            BackgroundColor(Color::NONE),
             SequenceControlButton,
         ))
         .with_children(|parent| {
             parent.spawn((
                 Text::new("Launch Sequence"),
                 TextFont {
-                    font_size: 30.0,
+                    font: typography.work_sans.clone(),
+                    font_size: 20.0,
                     ..default()
                 },
-                TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                TextColor(NEUTRAL_TEXT),
             ));
         });
 }
@@ -116,7 +118,7 @@ fn spawn_sequence_control_button(parent: &mut ChildSpawnerCommands) {
 ///
 /// This section allows the user to switch between constant and accelerating rhythms
 /// and adjust the base timing of the sequence.
-fn spawn_rhythm_section(parent: &mut ChildSpawnerCommands) {
+fn spawn_rhythm_section(parent: &mut ChildSpawnerCommands, typography: &Typography) {
     // Rhythm Mode Toggle Button: Constant vs Accelerate timing.
     parent
         .spawn((
@@ -124,24 +126,25 @@ fn spawn_rhythm_section(parent: &mut ChildSpawnerCommands) {
             Node {
                 width: Val::Percent(100.0),
                 height: Val::Px(45.0),
-                border: UiRect::all(Val::Px(2.0)),
+                border: UiRect::all(Val::Px(1.0)),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
-                margin: UiRect::bottom(Val::Px(10.0)),
+                margin: UiRect::bottom(Val::Px(15.0)),
                 ..default()
             },
-            BorderColor::all(Color::WHITE),
-            BackgroundColor(Color::srgb(0.15, 0.15, 0.15)),
+            BorderColor::all(GHOST_BORDER),
+            BackgroundColor(Color::NONE),
             RhythmModeButton,
         ))
         .with_children(|parent| {
             parent.spawn((
                 Text::new("Rhythm: Constant"),
                 TextFont {
-                    font_size: 20.0,
+                    font: typography.work_sans.clone(),
+                    font_size: 16.0,
                     ..default()
                 },
-                TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                TextColor(NEUTRAL_TEXT),
             ));
         });
 
@@ -149,10 +152,11 @@ fn spawn_rhythm_section(parent: &mut ChildSpawnerCommands) {
     parent.spawn((
         Text::new("Rhythm: 1.0s"),
         TextFont {
-            font_size: 25.0,
+            font: typography.work_sans.clone(),
+            font_size: 20.0,
             ..default()
         },
-        TextColor(Color::srgb(0.9, 0.9, 0.9)),
+        TextColor(NEUTRAL_TEXT),
         Node {
             margin: UiRect::bottom(Val::Px(5.0)),
             ..default()
@@ -172,7 +176,7 @@ fn spawn_rhythm_section(parent: &mut ChildSpawnerCommands) {
                 ..default()
             },
             BackgroundColor(Color::srgb(0.1, 0.1, 0.1)),
-            BorderColor::all(Color::WHITE),
+            BorderColor::all(GHOST_BORDER),
             Interaction::default(),
             RelativeCursorPosition::default(),
             Slider {
@@ -191,7 +195,7 @@ fn spawn_rhythm_section(parent: &mut ChildSpawnerCommands) {
                     position_type: PositionType::Absolute,
                     ..default()
                 },
-                BackgroundColor(Color::srgb(0.8, 0.8, 0.8)),
+                BackgroundColor(NEUTRAL_TEXT),
                 Interaction::default(),
                 SliderThumb,
             ));

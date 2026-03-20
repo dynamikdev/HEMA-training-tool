@@ -9,7 +9,7 @@ use bevy_ui_widgets::{Slider, SliderRange, SliderThumb, SliderValue};
 use std::f32::consts::PI;
 
 use crate::components::*;
-use crate::constants::{HIGHLIGHT_COLOR, PANEL_WIDTH, TARGET_COLOR};
+use crate::constants::{PRIMARY_EMISSIVE, NEUTRAL_TEXT, PANEL_WIDTH};
 use crate::resources::*;
 
 /// Handles interactions with the sequence control button (Play/Pause).
@@ -34,23 +34,23 @@ pub fn sequence_control_button_system(
                 sequence_state.running = !sequence_state.running;
                 if sequence_state.running {
                     text.0 = "Stop Sequence".to_string();
-                    background_color.0 = Color::srgb(0.35, 0.15, 0.15);
+                    background_color.0 = PRIMARY_EMISSIVE;
                 } else {
                     text.0 = "Launch Sequence".to_string();
-                    background_color.0 = Color::srgb(0.15, 0.15, 0.15);
+                    background_color.0 = Color::NONE;
                     // Reset accelerate counter when stopping, so it always starts fresh
                     // and doesn't immediately speed up upon restarting.
                     rhythm_state.accelerate_counter = 0;
                 }
             }
             Interaction::Hovered => {
-                background_color.0 = Color::srgb(0.25, 0.25, 0.25);
+                background_color.0 = Color::srgba(0.886, 0.886, 0.886, 0.1);
             }
             Interaction::None => {
                 if sequence_state.running {
-                    background_color.0 = Color::srgb(0.3, 0.1, 0.1);
+                    background_color.0 = PRIMARY_EMISSIVE;
                 } else {
-                    background_color.0 = Color::srgb(0.15, 0.15, 0.15);
+                    background_color.0 = Color::NONE;
                 }
             }
         }
@@ -91,10 +91,10 @@ pub fn mode_toggle_system(
                 }
             }
             Interaction::Hovered => {
-                background_color.0 = Color::srgb(0.25, 0.25, 0.25);
+                background_color.0 = Color::srgba(0.886, 0.886, 0.886, 0.1);
             }
             Interaction::None => {
-                background_color.0 = Color::srgb(0.15, 0.15, 0.15);
+                background_color.0 = Color::NONE;
             }
         }
     }
@@ -136,10 +136,10 @@ pub fn rhythm_mode_toggle_system(
                 }
             }
             Interaction::Hovered => {
-                background_color.0 = Color::srgb(0.25, 0.25, 0.25);
+                background_color.0 = Color::srgba(0.886, 0.886, 0.886, 0.1);
             }
             Interaction::None => {
-                background_color.0 = Color::srgb(0.15, 0.15, 0.15);
+                background_color.0 = Color::NONE;
             }
         }
     }
@@ -192,6 +192,7 @@ pub fn style_slider_system(
 pub fn update_circle_layout(
     window: Single<&bevy::window::Window, With<bevy::window::PrimaryWindow>>,
     mut text_query: Query<(&NumberIndex, &mut Transform, &mut TextFont)>,
+    typography: Res<Typography>,
 ) {
     // Available space is the window minus the side panel.
     let available_width = window.resolution.width() - PANEL_WIDTH;
@@ -213,6 +214,7 @@ pub fn update_circle_layout(
         // Offset X to center the circle in the area to the left of the side panel.
         transform.translation.x = x - PANEL_WIDTH / 2.0;
         transform.translation.y = y;
+        text_font.font = typography.space_grotesk.clone();
         text_font.font_size = dynamic_font_size.max(10.0); // Ensure readability on small windows.
     }
 }
@@ -295,9 +297,8 @@ pub fn render_glowing_arrow(
     // Linearly interpolate the arrow's endpoint based on animation progress.
     let current_end_pos = start_pos.lerp(end_pos, animation_state.progress);
 
-    // Use a high-intensity red color (exceeding 1.0 in some channels) to trigger
-    // the Bloom glow effect on the primary camera.
-    let color = LinearRgba::new(20.0, 0.0, 0.0, 1.0);
+    // Use the primary emissive color for the tactical active signal.
+    let color: Color = PRIMARY_EMISSIVE;
 
     // Draw the arrow multiple times with small offsets to simulate a thicker line,
     // as the default gizmo arrow does not support a thickness parameter.
@@ -311,8 +312,8 @@ pub fn render_glowing_arrow(
 /// Synchronizes the visual appearance of target numbers with the [`CurrentNumber`].
 ///
 /// This system updates the color of each target entity. If a target is the
-/// currently active one, it is assigned the [`HIGHLIGHT_COLOR`] (glowing red);
-/// otherwise, it receives the [`TARGET_COLOR`] (white).
+/// currently active one, it is assigned the [`PRIMARY_EMISSIVE`] (glowing red);
+/// otherwise, it receives the [`NEUTRAL_TEXT`] (white) at reduced opacity.
 pub fn sync_target_visuals(
     current_number: Res<CurrentNumber>,
     sequence_state: Res<SequenceState>,
@@ -320,9 +321,10 @@ pub fn sync_target_visuals(
 ) {
     for (index, mut color) in &mut query {
         if sequence_state.running && index.0 == current_number.0 {
-            color.0 = HIGHLIGHT_COLOR;
+            color.0 = PRIMARY_EMISSIVE;
         } else {
-            color.0 = TARGET_COLOR;
+            // Inactive targets use the neutral color at 30% opacity to minimize distractions.
+            color.0 = NEUTRAL_TEXT.with_alpha(0.3);
         }
     }
 }

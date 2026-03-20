@@ -24,13 +24,23 @@ pub const CIRCLE_RADIUS: f32 = 300.0;
 /// standard HEMA target diagrams (e.g., Meyer's Square).
 pub const LABELS: [u8; 8] = [7, 1, 5, 3, 8, 4, 6, 2];
 
-/// The default color used for targets when they are not being highlighted.
-///
-/// A neutral white is used to ensure high contrast against the dark background.
-pub const TARGET_COLOR: Color = Color::WHITE;
+// --- Kinetic Brutalism Color Palette ---
 
-/// The color used to highlight the currently active target number.
+/// Background: The primary void.
+pub const BACKGROUND_COLOR: Color = Color::srgb(0.075, 0.075, 0.075); // #131313
+
+/// Surface Container Low: The Telemetry Rail (Sidebar) base.
+pub const SURFACE_LOW: Color = Color::srgb(0.118, 0.118, 0.118); // #1e1e1e
+
+/// Neutral Text / Inactive Signal: Reserved for technical data, labels, and inactive targets.
+pub const NEUTRAL_TEXT: Color = Color::srgb(0.886, 0.886, 0.886); // #e2e2e2
+
+/// Primary Active Signal: High-intensity HDR value for #ff5540.
 ///
-/// This red color has high-intensity components to trigger the Bloom glow
-/// effect, making the active target clearly visible.
-pub const HIGHLIGHT_COLOR: Color = Color::linear_rgb(20.0, 0.0, 0.0);
+/// This color is used for active combat targets and critical states. It must be treated as a light source.
+pub const PRIMARY_EMISSIVE: Color = Color::linear_rgb(20.0, 3.0, 1.0); // Intense glowing red/orange
+
+/// Ghost Border: 20% opacity neutral border for functional boundaries.
+pub const GHOST_BORDER: Color = Color::srgba(0.886, 0.886, 0.886, 0.2); // #e2e2e2 at 20%
+
+// --- Deprecated (Replaced by Kinetic Brutalism Palette) ---

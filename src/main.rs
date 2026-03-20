@@ -58,7 +58,8 @@ fn initialize_app(app: &mut App) {
             accelerate_counter: 0,
         })
         .insert_resource(ArrowTarget::default())
-        .insert_resource(ArrowAnimationState::default());
+        .insert_resource(ArrowAnimationState::default())
+        .insert_resource(Typography::default());
 }
 
 /// The main entry point of the application.
