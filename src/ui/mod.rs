@@ -36,6 +36,7 @@ impl Plugin for UiPlugin {
                     style_slider_system,
                     update_rhythm_from_slider,
                     update_circle_layout,
+                    render_glowing_arrow,
                 ),
             );
     }

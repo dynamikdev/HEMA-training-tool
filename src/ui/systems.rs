@@ -242,3 +242,53 @@ pub fn update_rhythm_from_slider(
         }
     }
 }
+
+/// Renders the glowing guide arrow between the active and opposite targets.
+///
+/// This system uses Bevy's gizmo API to draw a high-intensity red arrow that
+/// triggers the Bloom effect. The arrow's length is animated based on the
+/// current [`ArrowAnimationState`].
+pub fn render_glowing_arrow(
+    window: Single<&bevy::window::Window, With<bevy::window::PrimaryWindow>>,
+    current_number: Res<CurrentNumber>,
+    arrow_target: Res<ArrowTarget>,
+    animation_state: Res<ArrowAnimationState>,
+    mut gizmos: Gizmos,
+) {
+    // Only render if we have a valid target index (it might be None during setup).
+    let target_idx = match arrow_target.0 {
+        Some(idx) => idx,
+        None => return,
+    };
+
+    // Calculate dimensions similar to update_circle_layout to ensure alignment.
+    let available_width = window.resolution.width() - PANEL_WIDTH;
+    let available_height = window.resolution.height();
+    let radius = available_width.min(available_height) / 2.0 * 0.8;
+    let offset_x = -PANEL_WIDTH / 2.0;
+
+    let start_idx = current_number.0;
+    let end_idx = target_idx;
+
+    // Convert indices to polar coordinates (angles) and then to screen space positions.
+    let start_angle = PI / 2.0 - (start_idx as f32) * (PI / 4.0);
+    let end_angle = PI / 2.0 - (end_idx as f32) * (PI / 4.0);
+
+    let start_pos = Vec2::new(
+        start_angle.cos() * radius + offset_x,
+        start_angle.sin() * radius,
+    );
+    let end_pos = Vec2::new(
+        end_angle.cos() * radius + offset_x,
+        end_angle.sin() * radius,
+    );
+
+    // Linearly interpolate the arrow's endpoint based on animation progress.
+    let current_end_pos = start_pos.lerp(end_pos, animation_state.progress);
+
+    // Use a high-intensity red color (exceeding 1.0 in some channels) to trigger
+    // the Bloom glow effect on the primary camera.
+    let color = LinearRgba::new(10.0, 0.0, 0.0, 1.0);
+
+    gizmos.arrow_2d(start_pos, current_end_pos, color);
+}

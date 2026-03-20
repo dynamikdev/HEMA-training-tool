@@ -57,7 +57,8 @@ fn initialize_app(app: &mut App) {
             mode: RhythmMode::Constant,
             accelerate_counter: 0,
         })
-        .insert_resource(ArrowTarget::default());
+        .insert_resource(ArrowTarget::default())
+        .insert_resource(ArrowAnimationState::default());
 }
 
 /// The main entry point of the application.

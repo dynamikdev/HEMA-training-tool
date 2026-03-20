@@ -23,6 +23,7 @@ impl Plugin for TrainingPlugin {
             handle_session_controls,
             sync_rhythm_timer,
             sync_arrow_target,
+            update_arrow_animation,
             sync_rhythm_ui
         ).chain());
     }
@@ -160,5 +161,31 @@ fn sync_arrow_target(
         // In a circular layout of 8 targets, the target diametrically opposite
         // to index 'i' is always '(i + 4) % 8'.
         arrow_target.0 = Some((current_number.0 + 4) % 8);
+    }
+}
+
+/// Progresses the "shoot" animation of the glowing arrow guide.
+///
+/// Resets the animation whenever the active target changes and increments the
+/// progress over time until the arrow is fully extended.
+fn update_arrow_animation(
+    time: Res<Time>,
+    current_number: Res<CurrentNumber>,
+    mut animation_state: ResMut<ArrowAnimationState>,
+) {
+    // Reset animation whenever a new target becomes active.
+    if current_number.is_changed() {
+        animation_state.progress = 0.0;
+        return;
+    }
+
+    // Advance the animation towards completion (1.0).
+    if animation_state.progress < 1.0 {
+        // The animation takes approximately 0.2 seconds to reach the opposite target.
+        animation_state.progress += time.delta().as_secs_f32() / 0.2;
+
+        if animation_state.progress > 1.0 {
+            animation_state.progress = 1.0;
+        }
     }
 }

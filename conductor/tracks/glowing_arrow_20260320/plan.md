@@ -12,7 +12,7 @@
 
 ## Phase 3: Visual Rendering & Animation
 - [x] Task: Write tests for the arrow's "shoot" animation logic (path interpolation). 62b26b4
-- [ ] Task: Implement the arrow rendering system using Bevy's `Gizmos` (or a custom mesh) with an emissive color to trigger Bloom.
+- [~] Task: Implement the arrow rendering system using Bevy's `Gizmos` (or a custom mesh) with an emissive color to trigger Bloom.
 - [ ] Task: Implement the "Animated Path" logic to make the arrow shoot from origin to destination.
 - [ ] Task: Conductor - User Manual Verification 'Visual Rendering & Animation' (Protocol in workflow.md)
 
