@@ -28,3 +28,9 @@ pub const LABELS: [u8; 8] = [7, 1, 5, 3, 8, 4, 6, 2];
 ///
 /// A neutral white is used to ensure high contrast against the dark background.
 pub const TARGET_COLOR: Color = Color::WHITE;
+
+/// The color used to highlight the currently active target number.
+///
+/// This red color has high-intensity components to trigger the Bloom glow
+/// effect, making the active target clearly visible.
+pub const HIGHLIGHT_COLOR: Color = Color::linear_rgb(20.0, 0.0, 0.0);

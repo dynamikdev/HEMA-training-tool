@@ -37,6 +37,7 @@ impl Plugin for UiPlugin {
                     update_rhythm_from_slider,
                     update_circle_layout,
                     render_glowing_arrow,
+                    sync_target_visuals,
                 ),
             );
     }

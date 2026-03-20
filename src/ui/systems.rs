@@ -9,7 +9,7 @@ use bevy_ui_widgets::{Slider, SliderRange, SliderThumb, SliderValue};
 use std::f32::consts::PI;
 
 use crate::components::*;
-use crate::constants::PANEL_WIDTH;
+use crate::constants::{HIGHLIGHT_COLOR, PANEL_WIDTH, TARGET_COLOR};
 use crate::resources::*;
 
 /// Handles interactions with the sequence control button (Play/Pause).
@@ -253,8 +253,14 @@ pub fn render_glowing_arrow(
     current_number: Res<CurrentNumber>,
     arrow_target: Res<ArrowTarget>,
     animation_state: Res<ArrowAnimationState>,
+    sequence_state: Res<SequenceState>,
     mut gizmos: Gizmos,
 ) {
+    // Don't show the arrow if the sequence is stopped.
+    if !sequence_state.running {
+        return;
+    }
+
     // Only render if we have a valid target index (it might be None during setup).
     let target_idx = match arrow_target.0 {
         Some(idx) => idx,
@@ -290,5 +296,30 @@ pub fn render_glowing_arrow(
     // the Bloom glow effect on the primary camera.
     let color = LinearRgba::new(20.0, 0.0, 0.0, 1.0);
 
+    // Draw the arrow multiple times with small offsets to simulate a thicker line,
+    // as the default gizmo arrow does not support a thickness parameter.
     gizmos.arrow_2d(start_pos, current_end_pos, color);
+    
+    let offset_v = (end_pos - start_pos).normalize().perp() * 2.0;
+    gizmos.arrow_2d(start_pos + offset_v, current_end_pos + offset_v, color);
+    gizmos.arrow_2d(start_pos - offset_v, current_end_pos - offset_v, color);
+}
+
+/// Synchronizes the visual appearance of target numbers with the [`CurrentNumber`].
+///
+/// This system updates the color of each target entity. If a target is the
+/// currently active one, it is assigned the [`HIGHLIGHT_COLOR`] (glowing red);
+/// otherwise, it receives the [`TARGET_COLOR`] (white).
+pub fn sync_target_visuals(
+    current_number: Res<CurrentNumber>,
+    sequence_state: Res<SequenceState>,
+    mut query: Query<(&NumberIndex, &mut TextColor)>,
+) {
+    for (index, mut color) in &mut query {
+        if sequence_state.running && index.0 == current_number.0 {
+            color.0 = HIGHLIGHT_COLOR;
+        } else {
+            color.0 = TARGET_COLOR;
+        }
+    }
 }
