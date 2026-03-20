@@ -200,4 +200,42 @@ mod tests {
         let seq_state = app.world().get_resource::<SequenceState>().unwrap();
         assert!(!seq_state.running);
     }
+
+    /// Verifies that the `ArrowTarget` is correctly updated when the `CurrentNumber` changes.
+    #[test]
+    fn test_arrow_target_calculation() {
+        let mut app = setup_app();
+        app.insert_resource(ArrowTarget::default());
+        
+        // Initial current number is 0.
+        app.update();
+        
+        // At index 0, the opposite is index 4 (0 + 4).
+        let arrow_target = app.world().get_resource::<ArrowTarget>().unwrap();
+        assert_eq!(arrow_target.0, Some(4));
+
+        // Change current number to index 3.
+        {
+            let mut current_number = app.world_mut().get_resource_mut::<CurrentNumber>().unwrap();
+            current_number.0 = 3;
+        }
+
+        app.update();
+
+        // At index 3, the opposite is index 7 (3 + 4).
+        let arrow_target = app.world().get_resource::<ArrowTarget>().unwrap();
+        assert_eq!(arrow_target.0, Some(7));
+
+        // Change current number to index 6.
+        {
+            let mut current_number = app.world_mut().get_resource_mut::<CurrentNumber>().unwrap();
+            current_number.0 = 6;
+        }
+
+        app.update();
+
+        // At index 6, the opposite is index 2 ((6 + 4) % 8).
+        let arrow_target = app.world().get_resource::<ArrowTarget>().unwrap();
+        assert_eq!(arrow_target.0, Some(2));
+    }
 }

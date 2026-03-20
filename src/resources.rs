@@ -73,3 +73,10 @@ pub struct RhythmState {
     /// rhythm should speed up. Reset to zero after each speed increase.
     pub accelerate_counter: u8,
 }
+
+/// Stores the index (0-7) of the target diametrically opposite to the current one.
+///
+/// This resource is updated whenever [`CurrentNumber`] changes and is used
+/// to determine the endpoint of the visual guide arrow.
+#[derive(Resource, Default, Debug)]
+pub struct ArrowTarget(pub Option<u8>);
