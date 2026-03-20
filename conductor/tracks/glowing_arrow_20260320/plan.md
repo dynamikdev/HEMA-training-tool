@@ -7,7 +7,7 @@
 ## Phase 2: Arrow Logic & Data Structures
 - [x] Task: Define `GlowingArrow` component and necessary resources in `src/components.rs` or `src/resources.rs`. b4982e6
 - [x] Task: Write tests in `src/logic_test.rs` for calculating the diametrically opposite target index. e12cda2
-- [ ] Task: Implement a system in `src/logic.rs` that calculates the arrow's start and end points when `CurrentNumber` changes.
+- [x] Task: Implement a system in `src/logic.rs` that calculates the arrow's start and end points when `CurrentNumber` changes. d5ce6c9
 - [ ] Task: Conductor - User Manual Verification 'Arrow Logic & Data Structures' (Protocol in workflow.md)
 
 ## Phase 3: Visual Rendering & Animation
