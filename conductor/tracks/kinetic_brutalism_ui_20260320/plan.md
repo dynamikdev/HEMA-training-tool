@@ -19,7 +19,7 @@ Adapt the HEMA Training Tool's UI to the "Kinetic Brutalism" design system. This
 - [x] Task: Update the Glowing Arrow guide to use the `PRIMARY_EMISSIVE` color.
 
 ## Phase 4: Review & Fixes
-- [x] Task: Apply review suggestions (fix `BorderColor`, `into()` ambiguity, and missing `CIRCLE_RADIUS`).
+- [x] Task: Apply review suggestions (fix `BorderColor`, `into()` ambiguity, and missing `CIRCLE_RADIUS`) bffd2d3
 
 ## Phase 5: Verification
 - [x] Task: Verify that no UI elements possess rounded corners.
