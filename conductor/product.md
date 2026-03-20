@@ -7,7 +7,7 @@ To provide a simple, effective, and platform-agnostic reaction training tool for
 - **All Levels**: Designed to be scalable, offering drills suitable for beginners learning the basics as well as advanced fencers refining their reaction speed.
 
 ## Core Features
-- **Visual Cues**: Clear, distinct visual indicators for specific guards or cuts to guide the user's actions.
+- **Visual Cues**: Clear, distinct visual indicators for specific guards or cuts. Includes a glowing arrow guide that points the line of the cut between targets.
 - **Reaction Sequences**: 
     - Random and Ordered modes.
     - Constant and Accelerating rhythms.
