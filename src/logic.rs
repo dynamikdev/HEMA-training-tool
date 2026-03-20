@@ -22,6 +22,7 @@ impl Plugin for TrainingPlugin {
             update_sequence_logic,
             handle_session_controls,
             sync_rhythm_timer,
+            sync_arrow_target,
             sync_rhythm_ui
         ).chain());
     }
@@ -144,5 +145,20 @@ fn sync_rhythm_timer(
 ) {
     if rhythm_state.is_changed() {
         timer.0.set_duration(std::time::Duration::from_secs_f32(rhythm_state.duration));
+    }
+}
+
+/// Recalculates the diametrically opposite target whenever the active target changes.
+///
+/// This system updates the [`ArrowTarget`] resource, which is then used by
+/// visual systems to position the guide arrow.
+fn sync_arrow_target(
+    current_number: Res<CurrentNumber>,
+    mut arrow_target: ResMut<ArrowTarget>,
+) {
+    if current_number.is_changed() {
+        // In a circular layout of 8 targets, the target diametrically opposite
+        // to index 'i' is always '(i + 4) % 8'.
+        arrow_target.0 = Some((current_number.0 + 4) % 8);
     }
 }
