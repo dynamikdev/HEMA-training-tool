@@ -17,6 +17,6 @@
 - [x] Task: Conductor - User Manual Verification 'Visual Rendering & Animation' (Protocol in workflow.md)
 
 ## Phase 4: Refinement & Style Compliance
-- [ ] Task: Fine-tune Bloom parameters (intensity, threshold) to match the "red and glowing" requirement.
+- [x] Task: Fine-tune Bloom parameters (intensity, threshold) to match the "red and glowing" requirement. 46f94d7
 - [ ] Task: Verify the arrow's visibility and contrast against the existing circle and background.
 - [ ] Task: Conductor - User Manual Verification 'Refinement & Style Compliance' (Protocol in workflow.md)
