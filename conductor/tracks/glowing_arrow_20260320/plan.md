@@ -16,7 +16,7 @@
 - [x] Task: Implement the "Animated Path" logic to make the arrow shoot from origin to destination. ce7a014
 - [x] Task: Conductor - User Manual Verification 'Visual Rendering & Animation' (Protocol in workflow.md)
 
-## Phase 4: Refinement & Style Compliance
+## Phase 4: Refinement & Style Compliance [checkpoint: f4b5af8]
 - [x] Task: Fine-tune Bloom parameters (intensity, threshold) to match the "red and glowing" requirement. 46f94d7
 - [x] Task: Verify the arrow's visibility and contrast against the existing circle and background. 813e3c9
-- [ ] Task: Conductor - User Manual Verification 'Refinement & Style Compliance' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Refinement & Style Compliance' (Protocol in workflow.md)
