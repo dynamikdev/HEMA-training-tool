@@ -4,11 +4,11 @@
 - [x] Task: Update `src/main.rs` to enable HDR on the primary camera and add the `Bloom` component. fa767b3
 - [x] Task: Conductor - User Manual Verification 'HDR & Bloom Setup' (Protocol in workflow.md)
 
-## Phase 2: Arrow Logic & Data Structures
+## Phase 2: Arrow Logic & Data Structures [checkpoint: 45d7c06]
 - [x] Task: Define `GlowingArrow` component and necessary resources in `src/components.rs` or `src/resources.rs`. b4982e6
 - [x] Task: Write tests in `src/logic_test.rs` for calculating the diametrically opposite target index. e12cda2
 - [x] Task: Implement a system in `src/logic.rs` that calculates the arrow's start and end points when `CurrentNumber` changes. d5ce6c9
-- [ ] Task: Conductor - User Manual Verification 'Arrow Logic & Data Structures' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Arrow Logic & Data Structures' (Protocol in workflow.md)
 
 ## Phase 3: Visual Rendering & Animation
 - [ ] Task: Write tests for the arrow's "shoot" animation logic (path interpolation).
