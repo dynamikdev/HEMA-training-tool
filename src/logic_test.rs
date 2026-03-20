@@ -1,3 +1,7 @@
+//! Unit tests for the core training logic of the HEMA Training Tool.
+//!
+//! These tests verify the behavior of the `TrainingPlugin`, including sequence modes,
+//! rhythm modes, and input handling for starting/pausing the training session.
 
 #[cfg(test)]
 mod tests {
@@ -6,6 +10,7 @@ mod tests {
     use crate::resources::*;
     use crate::constants::LABELS;
 
+    /// Sets up a Bevy `App` with the `TrainingPlugin` and required resources for testing.
     fn setup_app() -> App {
         let mut app = App::new();
         app.add_plugins(MinimalPlugins)
@@ -18,6 +23,7 @@ mod tests {
         app
     }
 
+    /// Verifies that the `highlight_system` correctly updates the `HighlightTimer`.
     #[test]
     fn test_highlight_system_updates_timer() {
         let mut app = setup_app();
@@ -38,6 +44,8 @@ mod tests {
         assert!(app.world().get_resource::<CurrentNumber>().is_some());
     }
 
+    /// Verifies that the `Ordered` sequence mode correctly increments the target index
+    /// according to the defined `LABELS`.
     #[test]
     fn test_ordered_sequence_mode() {
         let mut app = setup_app();
@@ -64,6 +72,8 @@ mod tests {
         assert_eq!(current_number.0, expected_index);
     }
 
+    /// Verifies that the `Constant` rhythm mode correctly updates the `HighlightTimer`
+    /// when the `RhythmState` duration is changed.
     #[test]
     fn test_constant_rhythm_timer_updates_from_rhythm_state() {
         let mut app = setup_app();
@@ -82,6 +92,8 @@ mod tests {
         assert_eq!(timer.0.duration().as_secs_f32(), 2.0);
     }
 
+    /// Verifies that the `Accelerate` rhythm mode correctly decreases the timer duration
+    /// after a set number of ticks.
     #[test]
     fn test_accelerate_rhythm_mode_speeds_up() {
         let mut app = setup_app();
@@ -108,6 +120,8 @@ mod tests {
         assert!((timer.0.duration().as_secs_f32() - 0.9).abs() < 0.01);
     }
 
+    /// Verifies that the `Accelerate` rhythm mode does not decrease the duration
+    /// below a minimum threshold (0.1s).
     #[test]
     fn test_accelerate_rhythm_mode_caps_at_min_duration() {
         let mut app = setup_app();
@@ -148,6 +162,8 @@ mod tests {
         assert!((rhythm_state.duration - 0.1).abs() < 0.01);
     }
 
+    /// Verifies that pressing the Space key toggles the training sequence between
+    /// running and paused states.
     #[test]
     fn test_toggle_play_pause_with_spacebar() {
         let mut app = setup_app();

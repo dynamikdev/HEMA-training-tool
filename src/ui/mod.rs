@@ -1,4 +1,8 @@
-//! UI implementation for the HEMA Training Tool, including the configuration panel and circular target layout.
+//! User interface module for the HEMA Training Tool.
+//!
+//! This module defines the `UiPlugin`, which handles the creation and management
+//! of the visual elements of the application, including the training target layout
+//! and the configuration sidebar.
 
 pub mod settings;
 pub mod setup;
@@ -12,6 +16,9 @@ use setup::setup;
 use systems::*;
 
 /// Plugin that initializes and manages the training tool's user interface.
+///
+/// This plugin adds the `SliderPlugin` for configuration controls and schedules
+/// the initialization and update systems for the target and settings panel.
 pub struct UiPlugin;
 
 impl Plugin for UiPlugin {

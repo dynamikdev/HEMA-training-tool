@@ -1,10 +1,19 @@
+//! Target visualization for the HEMA Training Tool.
+//!
+//! This module handles the creation and initial positioning of the training targets
+//! arranged in a circular pattern, representing the cutting directions of Meyer's Square.
+
 use bevy::prelude::*;
 use std::f32::consts::PI;
 
 use crate::components::NumberIndex;
 use crate::constants::{CIRCLE_RADIUS, LABELS, TARGET_COLOR};
 
-/// Spawns the circular layout of target numbers.
+/// Spawns the circular layout of target numbers in the 2D world.
+///
+/// Each target is represented by a `Text2d` entity with a `NumberIndex` component,
+/// allowing systems to identify and highlight specific targets during the sequence.
+/// The initial positions are calculated based on a circle with `CIRCLE_RADIUS`.
 pub fn spawn_target_circle(commands: &mut Commands) {
     let text_font = TextFont {
         font_size: 70.0,

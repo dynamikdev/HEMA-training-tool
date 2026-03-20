@@ -1,3 +1,9 @@
+//! Logic for handling UI interactions and dynamic layout updates.
+//!
+//! This module contains the Bevy systems that bridge the gap between user input
+//! (clicks, slider drags) and the internal simulation state, as well as systems
+//! that ensure the UI remains visually consistent across different window sizes.
+
 use bevy::prelude::*;
 use bevy_ui_widgets::{Slider, SliderRange, SliderThumb, SliderValue};
 use std::f32::consts::PI;
@@ -6,7 +12,11 @@ use crate::components::*;
 use crate::constants::PANEL_WIDTH;
 use crate::resources::*;
 
-/// Handles interactions with the start/stop sequence button.
+/// Handles interactions with the sequence control button (Play/Pause).
+///
+/// This system updates the [`SequenceState`] based on button clicks and
+/// modifies the button's appearance (text and color) to provide visual
+/// feedback on the current state of the simulation.
 pub fn sequence_control_button_system(
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor, &Children),
@@ -27,7 +37,8 @@ pub fn sequence_control_button_system(
                 } else {
                     text.0 = "Launch Sequence".to_string();
                     background_color.0 = Color::srgb(0.15, 0.15, 0.15);
-                    // Reset accelerate counter when stopping, so it always starts fresh.
+                    // Reset accelerate counter when stopping, so it always starts fresh
+                    // and doesn't immediately speed up upon restarting.
                     rhythm_state.accelerate_counter = 0;
                 }
             }
@@ -46,6 +57,9 @@ pub fn sequence_control_button_system(
 }
 
 /// Handles interactions with the sequence mode toggle button.
+///
+/// Switches the [`SequenceMode`] between Random and Ordered. It also resets
+/// internal counters to ensure the transition between modes is clean and predictable.
 pub fn mode_toggle_system(
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor, &Children),
@@ -62,7 +76,7 @@ pub fn mode_toggle_system(
                     SequenceMode::Random => SequenceMode::Ordered,
                     SequenceMode::Ordered => SequenceMode::Random,
                 };
-                // Reset ordered progress when switching modes or just to be safe.
+                // Reset ordered progress when switching modes to start from the beginning.
                 sequence_state.current_ordered_value = 0;
 
                 match sequence_state.mode {
@@ -85,6 +99,10 @@ pub fn mode_toggle_system(
 }
 
 /// Handles interactions with the rhythm mode toggle button.
+///
+/// Switches the [`RhythmMode`] between Constant and Accelerate. When switching,
+/// it resets the acceleration progress to ensure the user has time to adjust
+/// to the new behavior.
 pub fn rhythm_mode_toggle_system(
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor, &Children),
@@ -102,7 +120,7 @@ pub fn rhythm_mode_toggle_system(
                     RhythmMode::Accelerate => RhythmMode::Constant,
                 };
 
-                // Reset counter when toggling modes.
+                // Reset counter when toggling modes to provide a fresh start for acceleration.
                 rhythm_state.accelerate_counter = 0;
 
                 match rhythm_state.mode {
@@ -124,7 +142,10 @@ pub fn rhythm_mode_toggle_system(
     }
 }
 
-/// Visual styling system for the slider thumb position.
+/// Manages the visual state of the slider widget's thumb.
+///
+/// Since the slider widget is custom-built, this system manually calculates
+/// the thumb's position based on the current [`SliderValue`] and [`SliderRange`].
 pub fn style_slider_system(
     mut thumb_nodes: Query<&mut Node, With<SliderThumb>>,
     slider_query: Query<(&SliderValue, &SliderRange, &ComputedNode, &Children), With<Slider>>,
@@ -133,7 +154,7 @@ pub fn style_slider_system(
         let track_size = track_computed.size();
         let is_vertical = track_size.y > track_size.x;
 
-        let thumb_extent = 16.0; // Fixed size given in spawn.
+        let thumb_extent = 16.0; // Fixed size defined during spawn.
         let track_extent = if is_vertical {
             track_size.y
         } else {
@@ -160,7 +181,11 @@ pub fn style_slider_system(
     }
 }
 
-/// Dynamically updates the circular layout of numbers to fit the window and panel.
+/// Automatically adjusts the circular layout of targets to fit the window.
+///
+/// This system ensures that the training targets are always centered in the
+/// available screen space (accounting for the side panel) and that their
+/// size remains legible regardless of window dimensions.
 pub fn update_circle_layout(
     window: Single<&bevy::window::Window, With<bevy::window::PrimaryWindow>>,
     mut text_query: Query<(&NumberIndex, &mut Transform, &mut TextFont)>,
@@ -169,9 +194,9 @@ pub fn update_circle_layout(
     let available_width = window.resolution.width() - PANEL_WIDTH;
     let available_height = window.resolution.height();
 
-    // Use minimum dimension for radius to ensure it perfectly fits inside remaining space, with a little padding.
+    // Use minimum dimension for radius to ensure it fits comfortably with padding.
     let radius = available_width.min(available_height) / 2.0 * 0.8;
-    // Scale font size linearly based on radius.
+    // Scale font size linearly based on the radius to maintain visual proportions.
     let dynamic_font_size = radius * 0.25;
 
     for (index, mut transform, mut text_font) in &mut text_query {
@@ -182,14 +207,18 @@ pub fn update_circle_layout(
         let x = angle.cos() * radius;
         let y = angle.sin() * radius;
 
-        // Offset X to center the circle in the remaining area to the left of the side panel.
+        // Offset X to center the circle in the area to the left of the side panel.
         transform.translation.x = x - PANEL_WIDTH / 2.0;
         transform.translation.y = y;
         text_font.font_size = dynamic_font_size.max(10.0); // Ensure readability on small windows.
     }
 }
 
-/// Syncs the simulation rhythm state with the UI slider value.
+/// Updates the simulation's rhythm whenever the user interacts with the slider.
+///
+/// This system provides a "grid-snapping" behavior to make the rhythm selection
+/// more user-friendly and ensures that the internal timer is immediately
+/// updated to reflect the new desired duration.
 pub fn update_rhythm_from_slider(
     slider_query: Query<&SliderValue, Changed<SliderValue>>,
     mut rhythm_state: ResMut<RhythmState>,
@@ -197,9 +226,10 @@ pub fn update_rhythm_from_slider(
     mut text_query: Query<&mut Text, With<RhythmText>>,
 ) {
     for slider_val in &slider_query {
-        // Snap to grid of 0.1s.
+        // Snap to grid of 0.1s for easier user selection.
         let value = (slider_val.0 * 10.0).round() / 10.0;
 
+        // Only update if there is a significant change to avoid jitter.
         if (rhythm_state.duration - value).abs() > 0.01 {
             rhythm_state.duration = value;
             for mut text in &mut text_query {

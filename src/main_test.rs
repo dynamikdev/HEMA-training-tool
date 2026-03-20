@@ -1,3 +1,7 @@
+//! Integration tests for the application initialization.
+//!
+//! These tests verify that the `initialize_app` function correctly configures the
+//! Bevy `App` with all necessary resources and plugins.
 
 #[cfg(test)]
 mod tests {
@@ -5,6 +9,8 @@ mod tests {
     use crate::initialize_app;
     use crate::resources::*;
 
+    /// Verifies that `initialize_app` correctly adds the required training resources
+    /// to the Bevy `App`.
     #[test]
     fn test_initialize_app_adds_resources() {
         let mut app = App::new();

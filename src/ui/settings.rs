@@ -1,3 +1,8 @@
+//! UI components for the settings sidebar in the HEMA Training Tool.
+//!
+//! This module provides functions to spawn the configuration panel, including
+//! controls for sequence modes, rhythm settings, and playback state.
+
 use bevy::prelude::*;
 use bevy::ui::RelativeCursorPosition;
 use bevy_ui_widgets::{
@@ -9,6 +14,9 @@ use crate::components::*;
 use crate::constants::PANEL_WIDTH;
 
 /// Spawns the settings configuration panel.
+///
+/// The panel is positioned on the right side of the screen and contains
+/// all the controls for the training tool.
 pub fn spawn_settings_panel(parent: &mut ChildSpawnerCommands) {
     parent
         .spawn((
@@ -44,7 +52,7 @@ pub fn spawn_settings_panel(parent: &mut ChildSpawnerCommands) {
         });
 }
 
-/// Spawns the button for toggling sequence mode.
+/// Spawns the button for toggling sequence mode (Random vs Ordered).
 fn spawn_mode_toggle_button(parent: &mut ChildSpawnerCommands) {
     parent
         .spawn((
@@ -74,7 +82,7 @@ fn spawn_mode_toggle_button(parent: &mut ChildSpawnerCommands) {
         });
 }
 
-/// Spawns the button for starting/stopping the sequence.
+/// Spawns the button for starting/stopping the training sequence.
 fn spawn_sequence_control_button(parent: &mut ChildSpawnerCommands) {
     parent
         .spawn((
@@ -104,7 +112,10 @@ fn spawn_sequence_control_button(parent: &mut ChildSpawnerCommands) {
         });
 }
 
-/// Spawns the rhythm controls (mode toggle, label, and slider).
+/// Spawns the rhythm controls, including the mode toggle, duration label, and speed slider.
+///
+/// This section allows the user to switch between constant and accelerating rhythms
+/// and adjust the base timing of the sequence.
 fn spawn_rhythm_section(parent: &mut ChildSpawnerCommands) {
     // Rhythm Mode Toggle Button: Constant vs Accelerate timing.
     parent

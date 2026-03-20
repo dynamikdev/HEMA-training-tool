@@ -1,3 +1,9 @@
+//! Entry point for the HEMA Training Tool.
+//!
+//! This crate provides a Bevy-based application for practicing Meyer's Square (Carré Meyer)
+//! and other HEMA cutting patterns. It features a customizable target layout,
+//! sequence modes (Random/Ordered), and adjustable rhythms (Constant/Accelerating).
+
 use bevy::prelude::*;
 
 #[cfg(test)]
@@ -20,6 +26,10 @@ use resources::*;
 use ui::UiPlugin;
 
 /// Initializes and configures the HEMA Training Tool application.
+///
+/// This function sets up the default plugins, application-specific plugins (`UiPlugin`, `TrainingPlugin`),
+/// and initializes the required resources for state management, including timers,
+/// sequence tracking, and rhythm configuration.
 fn initialize_app(app: &mut App) {
     #[cfg(not(test))]
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
@@ -49,6 +59,9 @@ fn initialize_app(app: &mut App) {
         });
 }
 
+/// The main entry point of the application.
+///
+/// It creates a new Bevy `App`, initializes it via `initialize_app`, and starts the event loop.
 fn main() {
     let mut app = App::new();
     initialize_app(&mut app);

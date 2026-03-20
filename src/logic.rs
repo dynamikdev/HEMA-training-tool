@@ -1,4 +1,7 @@
-//! Core training simulation logic for target highlighting and rhythm control.
+//! Core training simulation logic, including target highlighting and rhythm control.
+//!
+//! This module contains the main Bevy plugin and systems that drive the training
+//! experience by managing timers, generating sequences, and handling session controls.
 
 use bevy::prelude::*;
 use bevy_ui_widgets::{Slider, SliderValue};
@@ -7,7 +10,10 @@ use rand::Rng;
 use crate::components::*;
 use crate::resources::*;
 
-/// Plugin that handles the core training logic, such as the highlighting system.
+/// A Bevy plugin that encapsulates all training simulation logic.
+///
+/// This plugin registers the core systems responsible for the training loop
+/// and ensures they run in a predictable sequence.
 pub struct TrainingPlugin;
 
 impl Plugin for TrainingPlugin {
@@ -21,7 +27,10 @@ impl Plugin for TrainingPlugin {
     }
 }
 
-/// System that handles overall session controls like Play/Pause.
+/// Toggles the training session on or off in response to user input.
+///
+/// Currently, this system listens for the Space key to play or pause the
+/// sequence, allowing the user to start or halt their practice session.
 fn handle_session_controls(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut sequence_state: ResMut<SequenceState>,
@@ -31,7 +40,14 @@ fn handle_session_controls(
     }
 }
 
-/// System that handles the core training logic: timer ticking, sequence generation, and rhythm acceleration.
+/// The core system that advances the training sequence.
+///
+/// This system performs the following duties when the session is active:
+/// 1. Ticks the [`HighlightTimer`].
+/// 2. If the timer finishes:
+///    - Handles rhythm acceleration in [`RhythmMode::Accelerate`].
+///    - Generates the next target index based on the active [`SequenceMode`].
+///    - Updates the global [`CurrentNumber`] resource to trigger UI updates.
 fn update_sequence_logic(
     time: Res<Time>,
     mut timer: ResMut<HighlightTimer>,
@@ -44,39 +60,42 @@ fn update_sequence_logic(
     }
 
     if timer.0.tick(time.delta()).just_finished() {
-        // Handle Acceleration: Speed up every 8 steps if in Accelerate mode.
+        // Accelerate: Decrease duration every 8 steps.
         if rhythm_state.mode == RhythmMode::Accelerate {
             rhythm_state.accelerate_counter += 1;
 
             if rhythm_state.accelerate_counter >= 8 {
                 rhythm_state.accelerate_counter = 0;
                 let mut new_duration = rhythm_state.duration - 0.1;
+                // Floor duration at 0.1s to prevent the trainer from becoming impossible.
                 if new_duration < 0.1 {
-                    new_duration = 0.1; // Cap at 0.1 seconds minimum frequency.
+                    new_duration = 0.1;
                 }
 
+                // Check for actual change to minimize unnecessary updates.
                 if (new_duration - rhythm_state.duration).abs() > 0.01 {
                     rhythm_state.duration = new_duration;
                 }
             }
         }
 
-        // Determine the next target to highlight based on the current SequenceMode.
+        // Generate the next target index.
         let target_index = match sequence_state.mode {
             SequenceMode::Random => {
                 let mut rng = rand::rng();
                 let mut target = rng.random_range(0..=7);
-                // Avoid highlighting the same number twice in a row for better training variety.
+                // Ensure a different target is picked to maintain user engagement and focus.
                 while target == current_number.0 {
                     target = rng.random_range(0..=7);
                 }
                 target
             }
             SequenceMode::Ordered => {
-                // Cycle values 1 to 8 sequentially.
+                // Advance the numeric value (1 through 8).
                 sequence_state.current_ordered_value =
                     (sequence_state.current_ordered_value % 8) + 1;
-                // Find index of this value in the circular LABELS layout.
+                
+                // Map the human-readable label to its visual position index.
                 crate::constants::LABELS
                     .iter()
                     .position(|&l| l == sequence_state.current_ordered_value)
@@ -88,7 +107,10 @@ fn update_sequence_logic(
     }
 }
 
-/// System that syncs the UI elements (text and slider) with changes in RhythmState.
+/// Keeps UI elements synchronized with the internal [`RhythmState`].
+///
+/// Updates the numeric display and the slider widget whenever the rhythm
+/// duration is modified (either by user input or auto-acceleration).
 fn sync_rhythm_ui(
     rhythm_state: Res<RhythmState>,
     mut text_query: Query<&mut Text, With<RhythmText>>,
@@ -101,16 +123,21 @@ fn sync_rhythm_ui(
 
     let duration = rhythm_state.duration;
 
+    // Update the textual feedback for the user.
     for mut text in &mut text_query {
         text.0 = format!("Rhythm: {:.1}s", duration);
     }
     
+    // Update the slider widget to reflect the new internal state.
     for slider_entity in &slider_query {
         commands.entity(slider_entity).insert(SliderValue(duration));
     }
 }
 
-/// System that syncs the timer's duration with RhythmState.
+/// Updates the hardware-backed timer whenever the desired rhythm duration changes.
+///
+/// This ensures that the simulation's tick frequency remains in sync with the
+/// [`RhythmState`]'s duration parameter.
 fn sync_rhythm_timer(
     rhythm_state: Res<RhythmState>,
     mut timer: ResMut<HighlightTimer>,
