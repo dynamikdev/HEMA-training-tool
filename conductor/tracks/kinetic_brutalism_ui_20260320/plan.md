@@ -24,3 +24,6 @@ Adapt the HEMA Training Tool's UI to the "Kinetic Brutalism" design system. This
 ## Phase 5: Verification
 - [x] Task: Verify that no UI elements possess rounded corners.
 - [x] Task: Verify the bloom effect accurately mimics the "Active Signal" light source.
+
+## Phase 6: Review Fixes
+- [x] Task: Apply review suggestions d130190
