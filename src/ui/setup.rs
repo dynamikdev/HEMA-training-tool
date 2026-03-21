@@ -31,9 +31,20 @@ pub fn setup(
 
     spawn_camera(&mut commands);
 
+    // Active Canvas: 2D World Background Layer.
+    // We spawn a large sprite or a clear background to ensure the 2D world
+    // is visible and not occluded by the UI root.
+    commands.spawn((
+        Sprite {
+            color: BACKGROUND_COLOR,
+            custom_size: Some(Vec2::new(10000.0, 10000.0)),
+            ..default()
+        },
+        Transform::from_xyz(0.0, 0.0, -10.0), // Far back in the 2D world
+    ));
+
     // UI Root Node: Full screen container.
-    // We use FlexEnd to push the settings panel to the right side of the screen,
-    // leaving the central area clear for the target circle.
+    // We use Transparent background for the root to allow 2D world to show through.
     commands
         .spawn((
             Node {
@@ -42,7 +53,7 @@ pub fn setup(
                 justify_content: JustifyContent::FlexEnd,
                 ..default()
             },
-            BackgroundColor(BACKGROUND_COLOR),
+            BackgroundColor(Color::NONE),
         ))
         .with_children(|parent| {
             spawn_settings_panel(parent, &typography);

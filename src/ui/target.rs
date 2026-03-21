@@ -32,8 +32,9 @@ pub fn spawn_target_circle(commands: &mut Commands, typography: &Typography) {
             Text2d::new(format!("{}", LABELS[i as usize])),
             text_font.clone(),
             text_color,
-            Transform::from_xyz(x, y, 0.0),
+            Transform::from_xyz(x, y, 1.0),
             NumberIndex(i),
+            ZIndex(1),
         ));
     }
 }

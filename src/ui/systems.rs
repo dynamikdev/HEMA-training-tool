@@ -214,6 +214,7 @@ pub fn update_circle_layout(
         // Offset X to center the circle in the area to the left of the side panel.
         transform.translation.x = x - PANEL_WIDTH / 2.0;
         transform.translation.y = y;
+        transform.translation.z = 1.0;
         text_font.font = typography.space_grotesk.clone();
         text_font.font_size = dynamic_font_size.max(10.0); // Ensure readability on small windows.
     }
@@ -302,11 +303,11 @@ pub fn render_glowing_arrow(
 
     // Draw the arrow multiple times with small offsets to simulate a thicker line,
     // as the default gizmo arrow does not support a thickness parameter.
-    gizmos.arrow_2d(start_pos, current_end_pos, color);
+    gizmos.arrow(start_pos.extend(1.0), current_end_pos.extend(1.0), color);
     
     let offset_v = (end_pos - start_pos).normalize().perp() * 2.0;
-    gizmos.arrow_2d(start_pos + offset_v, current_end_pos + offset_v, color);
-    gizmos.arrow_2d(start_pos - offset_v, current_end_pos - offset_v, color);
+    gizmos.arrow((start_pos + offset_v).extend(1.0), (current_end_pos + offset_v).extend(1.0), color);
+    gizmos.arrow((start_pos - offset_v).extend(1.0), (current_end_pos - offset_v).extend(1.0), color);
 }
 
 /// Synchronizes the visual appearance of target numbers with the [`CurrentNumber`].
@@ -323,8 +324,8 @@ pub fn sync_target_visuals(
         if sequence_state.running && index.0 == current_number.0 {
             color.0 = PRIMARY_EMISSIVE;
         } else {
-            // Inactive targets use the neutral color at 30% opacity to minimize distractions.
-            color.0 = NEUTRAL_TEXT.with_alpha(0.3);
+            // Inactive targets use the neutral color at 100% opacity for maximum tactical clarity.
+            color.0 = NEUTRAL_TEXT;
         }
     }
 }
