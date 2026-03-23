@@ -35,6 +35,7 @@ pub fn setup(
     // We spawn a large sprite or a clear background to ensure the 2D world
     // is visible and not occluded by the UI root.
     commands.spawn((
+        Name::new("Active Canvas Background"),
         Sprite {
             color: BACKGROUND_COLOR,
             custom_size: Some(Vec2::new(10000.0, 10000.0)),
@@ -47,6 +48,7 @@ pub fn setup(
     // We use Transparent background for the root to allow 2D world to show through.
     commands
         .spawn((
+            Name::new("UI Root"),
             Node {
                 width: Val::Percent(100.0),
                 height: Val::Percent(100.0),

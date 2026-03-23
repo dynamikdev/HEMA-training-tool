@@ -29,6 +29,7 @@ pub fn spawn_target_circle(commands: &mut Commands, typography: &Typography) {
         let y = angle.sin() * CIRCLE_RADIUS;
 
         commands.spawn((
+            Name::new(format!("Target {}", LABELS[i as usize])),
             Text2d::new(format!("{}", LABELS[i as usize])),
             text_font.clone(),
             text_color,
