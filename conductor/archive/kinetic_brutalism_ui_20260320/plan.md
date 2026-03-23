@@ -27,3 +27,6 @@ Adapt the HEMA Training Tool's UI to the "Kinetic Brutalism" design system. This
 
 ## Phase 6: Review Fixes
 - [x] Task: Apply review suggestions d130190
+
+## Phase 7: Final Review Fixes
+- [x] Task: Add mandatory Name components to top-level entities 953bde3
