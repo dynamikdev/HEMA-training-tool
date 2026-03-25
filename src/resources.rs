@@ -20,6 +20,60 @@ pub struct HighlightTimer(pub Timer);
 #[derive(Resource)]
 pub struct CurrentNumber(pub u8);
 
+/// Technique required for a strike in Meyer's Square.
+#[derive(Debug, Default, PartialEq, Clone, Copy)]
+pub enum TechniqueType {
+    /// A flowing cut or slash.
+    #[default]
+    Cut,
+    /// A direct thrust.
+    Thrust,
+    /// A defensive parry or shield.
+    Parry,
+}
+
+/// Represents a single target node in the Meyer's Square grid.
+#[derive(Debug, Clone, Copy)]
+pub struct MeyerNode {
+    /// Normalized X coordinate (-1.0 to 1.0).
+    pub x: f32,
+    /// Normalized Y coordinate (-1.0 to 1.0).
+    pub y: f32,
+    /// The technique to execute at this node.
+    pub technique: TechniqueType,
+}
+
+/// Represents a 4-strike sequence in the Meyer's Square.
+#[derive(Debug, Clone)]
+pub struct MeyerSequence {
+    pub nodes: [MeyerNode; 4],
+}
+
+/// Resource to manage the state of the Meyer's Square training flow.
+#[derive(Resource, Default, Debug)]
+pub struct MeyerTrainingResource {
+    /// The index of the current sequence (0 to 3).
+    pub current_sequence: usize,
+    /// The index of the current node within the sequence (0 to 3).
+    pub current_node: usize,
+    /// Progress of the transition to the next node (0.0 to 1.0).
+    pub transition_timer: f32,
+}
+
+/// Workflow mode for the training session.
+#[derive(Debug, Default, PartialEq, Clone, Copy)]
+pub enum TrainingWorkflow {
+    /// The original circular target training.
+    #[default]
+    Circular,
+    /// The Meyer's Square grid training.
+    MeyerSquare,
+}
+
+/// Stores the current active workflow mode.
+#[derive(Resource, Default, Debug)]
+pub struct ActiveWorkflow(pub TrainingWorkflow);
+
 /// Strategy for generating the sequence of target numbers.
 #[derive(Debug, Default, PartialEq, Clone, Copy)]
 pub enum SequenceMode {

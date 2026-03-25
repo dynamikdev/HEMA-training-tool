@@ -20,6 +20,7 @@ impl Plugin for TrainingPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, (
             update_sequence_logic,
+            update_meyer_sequence_logic,
             handle_session_controls,
             sync_rhythm_timer,
             sync_arrow_target,
@@ -56,8 +57,9 @@ fn update_sequence_logic(
     mut current_number: ResMut<CurrentNumber>,
     mut sequence_state: ResMut<SequenceState>,
     mut rhythm_state: ResMut<RhythmState>,
+    active_workflow: Res<ActiveWorkflow>,
 ) {
-    if !sequence_state.running {
+    if !sequence_state.running || active_workflow.0 != TrainingWorkflow::Circular {
         return;
     }
 
@@ -106,6 +108,38 @@ fn update_sequence_logic(
         };
 
         current_number.0 = target_index;
+    }
+}
+
+/// System to update the Meyer's Square training sequence logic.
+///
+/// Cycles through the 16 nodes in their defined sequences.
+fn update_meyer_sequence_logic(
+    time: Res<Time>,
+    sequence_state: Res<SequenceState>,
+    active_workflow: Res<ActiveWorkflow>,
+    mut meyer_state: ResMut<MeyerTrainingResource>,
+    rhythm_state: Res<RhythmState>,
+) {
+    if !sequence_state.running || active_workflow.0 != TrainingWorkflow::MeyerSquare {
+        return;
+    }
+
+    // Use rhythm_state.duration for the transition speed.
+    // The transition_timer goes from 0.0 to 1.0 over the duration.
+    meyer_state.transition_timer += time.delta().as_secs_f32() / rhythm_state.duration;
+
+    if meyer_state.transition_timer >= 1.0 {
+        meyer_state.transition_timer = 0.0;
+
+        // Advance node
+        meyer_state.current_node += 1;
+
+        // If we hit the end of a 4-strike sequence, advance to next sequence
+        if meyer_state.current_node >= 4 {
+            meyer_state.current_node = 0;
+            meyer_state.current_sequence = (meyer_state.current_sequence + 1) % 4;
+        }
     }
 }
 

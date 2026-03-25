@@ -19,6 +19,8 @@ mod tests {
            .insert_resource(HighlightTimer(Timer::from_seconds(1.0, TimerMode::Repeating)))
            .insert_resource(CurrentNumber(0))
            .insert_resource(SequenceState { running: true, ..default() })
+           .insert_resource(ActiveWorkflow::default())
+           .insert_resource(MeyerTrainingResource::default())
            .insert_resource(RhythmState { duration: 1.0, mode: RhythmMode::Constant, accelerate_counter: 0 })
            .insert_resource(ArrowTarget::default())
            .insert_resource(ArrowAnimationState::default());
@@ -278,6 +280,51 @@ mod tests {
         {
             let animation_state = app.world().get_resource::<ArrowAnimationState>().unwrap();
             assert!(animation_state.progress > 0.0);
+        }
+    }
+
+    /// Verifies that the Meyer sequence logic correctly advances nodes and sequences.
+    #[test]
+    fn test_meyer_sequence_advances_nodes_and_sequences() {
+        let mut app = setup_app();
+
+        // Setup Meyer's Square workflow
+        {
+            let mut active_workflow = app.world_mut().get_resource_mut::<ActiveWorkflow>().unwrap();
+            active_workflow.0 = TrainingWorkflow::MeyerSquare;
+        }
+
+        app.update(); // Initialize
+
+        // Advance time by rhythm duration (1.0s) to trigger node advance.
+        {
+            let mut time = app.world_mut().get_resource_mut::<Time>().unwrap();
+            time.advance_by(std::time::Duration::from_millis(1001));
+        }
+
+        app.update();
+
+        // Node should have advanced from 0 to 1
+        {
+            let meyer_state = app.world().get_resource::<MeyerTrainingResource>().unwrap();
+            assert_eq!(meyer_state.current_node, 1);
+            assert_eq!(meyer_state.current_sequence, 0);
+        }
+
+        // Advance time by 3 more full durations to complete the sequence
+        for _ in 0..3 {
+            {
+                let mut time = app.world_mut().get_resource_mut::<Time>().unwrap();
+                time.advance_by(std::time::Duration::from_millis(1001));
+            }
+            app.update();
+        }
+
+        // Should now be on node 0 of sequence 1
+        {
+            let meyer_state = app.world().get_resource::<MeyerTrainingResource>().unwrap();
+            assert_eq!(meyer_state.current_node, 0);
+            assert_eq!(meyer_state.current_sequence, 1);
         }
     }
 }

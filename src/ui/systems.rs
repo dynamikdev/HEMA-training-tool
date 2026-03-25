@@ -9,7 +9,7 @@ use bevy_ui_widgets::{Slider, SliderRange, SliderThumb, SliderValue};
 use std::f32::consts::PI;
 
 use crate::components::*;
-use crate::constants::{PRIMARY_EMISSIVE, NEUTRAL_TEXT, PANEL_WIDTH};
+use crate::constants::{PRIMARY_EMISSIVE, NEUTRAL_TEXT, PANEL_WIDTH, GHOST_BORDER, MEYER_SEQUENCES};
 use crate::resources::*;
 
 /// Handles interactions with the sequence control button (Play/Pause).
@@ -88,6 +88,106 @@ pub fn curriculum_toggle_system(
     }
 }
 
+/// Renders the Meyer's Square grid and the "Ghost of Meyer" visual cues.
+pub fn render_meyer_square(
+    window: Single<&bevy::window::Window, With<bevy::window::PrimaryWindow>>,
+    active_workflow: Res<ActiveWorkflow>,
+    meyer_state: Res<MeyerTrainingResource>,
+    sequence_state: Res<SequenceState>,
+    mut gizmos: Gizmos,
+) {
+    if active_workflow.0 != TrainingWorkflow::MeyerSquare {
+        return;
+    }
+
+    let available_width = window.resolution.width() - PANEL_WIDTH;
+    let available_height = window.resolution.height();
+    // Leave some padding around the square.
+    let half_size = available_width.min(available_height) / 2.0 * 0.8;
+    let offset_x = -PANEL_WIDTH / 2.0;
+    let center = Vec2::new(offset_x, 0.0);
+
+    // Render Geometric Grid
+    // Bounding Square
+    gizmos.rect_2d(
+        center,
+        Vec2::splat(half_size * 2.0),
+        GHOST_BORDER,
+    );
+
+    // Thick central cross
+    gizmos.line_2d(
+        center + Vec2::new(-half_size, 0.0),
+        center + Vec2::new(half_size, 0.0),
+        GHOST_BORDER,
+    );
+    gizmos.line_2d(
+        center + Vec2::new(0.0, -half_size),
+        center + Vec2::new(0.0, half_size),
+        GHOST_BORDER,
+    );
+
+    // Draw all 16 nodes as markers
+    for sequence in MEYER_SEQUENCES.iter() {
+        for node in &sequence.nodes {
+            let pos = center + Vec2::new(node.x, node.y) * half_size;
+            gizmos.circle_2d(pos, 5.0, GHOST_BORDER);
+        }
+    }
+
+    // Ghost of Meyer visual signatures
+    if sequence_state.running {
+        let current_sequence = &MEYER_SEQUENCES[meyer_state.current_sequence];
+        let current_node = &current_sequence.nodes[meyer_state.current_node];
+        let start_pos = center + Vec2::new(current_node.x, current_node.y) * half_size;
+
+        // Calculate end node
+        let next_node_idx = (meyer_state.current_node + 1) % 4;
+        // If transitioning sequence, it's more complex, but for MVP keep it within sequence
+        let end_node = &current_sequence.nodes[next_node_idx];
+        let end_pos = center + Vec2::new(end_node.x, end_node.y) * half_size;
+
+        // Interpolate position based on transition timer
+        let current_pos = start_pos.lerp(end_pos, meyer_state.transition_timer);
+
+        match current_node.technique {
+            TechniqueType::Cut => {
+                // Slash (Cut): Decaying trail. Line from start to current interpolated pos.
+                gizmos.line_2d(start_pos, current_pos, PRIMARY_EMISSIVE);
+                // Make it thicker
+                let offset = (end_pos - start_pos).normalize_or_zero().perp() * 2.0;
+                gizmos.line_2d(start_pos + offset, current_pos + offset, PRIMARY_EMISSIVE);
+                gizmos.line_2d(start_pos - offset, current_pos - offset, PRIMARY_EMISSIVE);
+            }
+            TechniqueType::Thrust => {
+                // Beam (Thrust): Telescoping line from center.
+                gizmos.line_2d(center, current_pos, PRIMARY_EMISSIVE);
+                let offset = (current_pos - center).normalize_or_zero().perp() * 1.5;
+                gizmos.line_2d(center + offset, current_pos + offset, PRIMARY_EMISSIVE);
+                gizmos.line_2d(center - offset, current_pos - offset, PRIMARY_EMISSIVE);
+            }
+            TechniqueType::Parry => {
+                // Shield (Parry): Strobing block at the target node.
+                // Blink based on timer (e.g., fast strobe)
+                let strobe = (meyer_state.transition_timer * 20.0).sin() > 0.0;
+                if strobe {
+                    gizmos.rect_2d(
+                        start_pos,
+                        Vec2::splat(20.0),
+                        PRIMARY_EMISSIVE,
+                    );
+                } else {
+                    gizmos.rect_2d(
+                        start_pos,
+                        Vec2::splat(20.0),
+                        GHOST_BORDER,
+                    );
+                }
+            }
+        }
+    }
+}
+
 /// Handles interactions with the sequence mode toggle button.
 ///
 /// Switches the [`SequenceMode`] between Random and Ordered. It also resets
@@ -118,6 +218,50 @@ pub fn mode_toggle_system(
                     }
                     SequenceMode::Ordered => {
                         text.0 = "Mode: Ordered".to_string();
+                    }
+                }
+            }
+            Interaction::Hovered => {
+                background_color.0 = Color::srgba(0.886, 0.886, 0.886, 0.1);
+            }
+            Interaction::None => {
+                background_color.0 = Color::NONE;
+            }
+        }
+    }
+}
+
+/// Handles interactions with the workflow toggle button.
+///
+/// Switches the [`TrainingWorkflow`] between Circular and MeyerSquare.
+#[allow(clippy::type_complexity)]
+pub fn workflow_toggle_system(
+    mut interaction_query: Query<
+        (&Interaction, &mut BackgroundColor, &Children),
+        (Changed<Interaction>, With<WorkflowModeButton>),
+    >,
+    mut text_query: Query<&mut Text>,
+    mut workflow_state: ResMut<ActiveWorkflow>,
+    mut sequence_state: ResMut<SequenceState>,
+) {
+    for (interaction, mut background_color, children) in &mut interaction_query {
+        let mut text = text_query.get_mut(children[0]).unwrap();
+        match *interaction {
+            Interaction::Pressed => {
+                workflow_state.0 = match workflow_state.0 {
+                    TrainingWorkflow::Circular => TrainingWorkflow::MeyerSquare,
+                    TrainingWorkflow::MeyerSquare => TrainingWorkflow::Circular,
+                };
+
+                // Pause training when switching workflows.
+                sequence_state.running = false;
+
+                match workflow_state.0 {
+                    TrainingWorkflow::Circular => {
+                        text.0 = "Workflow: Circular".to_string();
+                    }
+                    TrainingWorkflow::MeyerSquare => {
+                        text.0 = "Workflow: Meyer's Square".to_string();
                     }
                 }
             }
@@ -291,10 +435,11 @@ pub fn render_glowing_arrow(
     arrow_target: Res<ArrowTarget>,
     animation_state: Res<ArrowAnimationState>,
     sequence_state: Res<SequenceState>,
+    active_workflow: Res<ActiveWorkflow>,
     mut gizmos: Gizmos,
 ) {
-    // Don't show the arrow if the sequence is stopped.
-    if !sequence_state.running {
+    // Don't show the arrow if the sequence is stopped or if we are not in Circular mode.
+    if !sequence_state.running || active_workflow.0 != TrainingWorkflow::Circular {
         return;
     }
 
@@ -349,9 +494,13 @@ pub fn render_glowing_arrow(
 pub fn sync_target_visuals(
     current_number: Res<CurrentNumber>,
     sequence_state: Res<SequenceState>,
-    mut query: Query<(&NumberIndex, &mut TextColor)>,
+    active_workflow: Res<ActiveWorkflow>,
+    mut query: Query<(&NumberIndex, &mut TextColor, &mut Visibility)>,
 ) {
-    for (index, mut color) in &mut query {
+    let show_circular = active_workflow.0 == TrainingWorkflow::Circular;
+    for (index, mut color, mut visibility) in &mut query {
+        *visibility = if show_circular { Visibility::Inherited } else { Visibility::Hidden };
+
         if sequence_state.running && index.0 == current_number.0 {
             color.0 = PRIMARY_EMISSIVE;
         } else {
