@@ -52,6 +52,42 @@ pub fn sequence_control_button_system(
     }
 }
 
+/// Handles interactions with the curriculum toggle button.
+///
+/// Toggles the visibility of the curriculum documents and automatically pauses
+/// the training sequence when opened.
+#[allow(clippy::type_complexity)]
+pub fn curriculum_toggle_system(
+    mut interaction_query: Query<
+        (&Interaction, &mut BackgroundColor, &Children),
+        (Changed<Interaction>, With<CurriculumToggleButton>),
+    >,
+    mut text_query: Query<&mut Text>,
+    mut curriculum_state: ResMut<CurriculumState>,
+    mut sequence_state: ResMut<SequenceState>,
+) {
+    for (interaction, mut background_color, children) in &mut interaction_query {
+        let mut text = text_query.get_mut(children[0]).unwrap();
+        match *interaction {
+            Interaction::Pressed => {
+                curriculum_state.is_visible = !curriculum_state.is_visible;
+                if curriculum_state.is_visible {
+                    text.0 = "Close Curriculum".to_string();
+                    sequence_state.running = false;
+                } else {
+                    text.0 = "Open Curriculum".to_string();
+                }
+            }
+            Interaction::Hovered => {
+                background_color.0 = Color::srgba(0.886, 0.886, 0.886, 0.1);
+            }
+            Interaction::None => {
+                background_color.0 = Color::NONE;
+            }
+        }
+    }
+}
+
 /// Handles interactions with the sequence mode toggle button.
 ///
 /// Switches the [`SequenceMode`] between Random and Ordered. It also resets

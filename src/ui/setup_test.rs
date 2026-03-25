@@ -6,7 +6,34 @@ mod tests {
     use bevy::post_process::bloom::Bloom;
     use bevy::render::view::Hdr;
     use crate::ui::setup::setup;
-    use crate::resources::Typography;
+    use crate::resources::{CurriculumState, SequenceState, Typography};
+    use crate::components::CurriculumToggleButton;
+    use crate::ui::systems::curriculum_toggle_system;
+
+    /// Verifies that clicking the Curriculum Toggle Button toggles visibility and pauses the sequence.
+    #[test]
+    fn test_curriculum_toggle_system() {
+        let mut app = App::new();
+        app.insert_resource(CurriculumState::default());
+        app.insert_resource(SequenceState { running: true, ..default() });
+        app.add_systems(Update, curriculum_toggle_system);
+
+        let entity = app.world_mut().spawn((
+            CurriculumToggleButton,
+            Interaction::Pressed,
+            BackgroundColor(Color::NONE),
+        )).id();
+        let text_entity = app.world_mut().spawn(Text::new("Open Curriculum")).id();
+        app.world_mut().entity_mut(entity).add_child(text_entity);
+
+        app.update();
+
+        let curr_state = app.world().resource::<CurriculumState>();
+        let seq_state = app.world().resource::<SequenceState>();
+
+        assert!(curr_state.is_visible, "Curriculum should become visible.");
+        assert!(!seq_state.running, "Sequence should be paused when curriculum is opened.");
+    }
 
     /// Verifies that the camera is spawned with the Hdr and Bloom components.
     #[test]

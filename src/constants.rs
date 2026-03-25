@@ -43,4 +43,24 @@ pub const PRIMARY_EMISSIVE: Color = Color::linear_rgb(20.0, 3.0, 1.0); // Intens
 /// Ghost Border: 20% opacity neutral border for functional boundaries.
 pub const GHOST_BORDER: Color = Color::srgba(0.886, 0.886, 0.886, 0.2); // #e2e2e2 at 20%
 
+// --- Curriculum Manifest ---
+use once_cell::sync::Lazy;
+use std::collections::HashMap;
+
+/// Statically defines the available curriculum grades and their corresponding documents.
+///
+/// This structure mirrors the `assets/Grades Escrime` folder to allow the application
+/// to dynamically populate UI dropdowns or lists without needing to read the file system
+/// directly at runtime.
+///
+/// Format: `HashMap<GradeName, Vec<(DocumentName, PageCount)>>`
+pub static CURRICULUM_MANIFEST: Lazy<HashMap<&'static str, Vec<(&'static str, usize)>>> = Lazy::new(|| {
+    let mut m = HashMap::new();
+    // 14 pages (00 to 13)
+    m.insert("Niveau 1.1", vec![("Passage de Grade 1.1", 14)]);
+    // 11 pages (00 to 10)
+    m.insert("Niveau 1.2", vec![("Passage de grade 1.2", 11)]);
+    m
+});
+
 // --- Deprecated (Replaced by Kinetic Brutalism Palette) ---

@@ -12,6 +12,7 @@ use crate::constants::BACKGROUND_COLOR;
 use crate::resources::Typography;
 use super::settings::spawn_settings_panel;
 use super::target::spawn_target_circle;
+use super::curriculum::spawn_curriculum_viewer;
 
 /// The primary entry point for UI initialization.
 ///
@@ -59,6 +60,7 @@ pub fn setup(
         ))
         .with_children(|parent| {
             spawn_settings_panel(parent, &typography);
+            spawn_curriculum_viewer(parent);
         });
 
     spawn_target_circle(&mut commands, &typography);
