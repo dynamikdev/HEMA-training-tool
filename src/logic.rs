@@ -127,10 +127,20 @@ fn update_meyer_sequence_logic(
 
     // Use rhythm_state.duration for the transition speed.
     // The transition_timer goes from 0.0 to 1.0 over the duration.
-    meyer_state.transition_timer += time.delta().as_secs_f32() / rhythm_state.duration;
+    // time.delta() can be 0 or small in minimal tests without explicit time stepping.
+    // Instead we use `delta_secs()` or `delta().as_secs_f32()` which gets updated by `time.advance_by`.
+    let delta = time.delta_secs();
 
-    if meyer_state.transition_timer >= 1.0 {
-        meyer_state.transition_timer = 0.0;
+    // Safety check against zero duration to avoid division by zero or infinite loop
+    let dur = rhythm_state.duration.max(0.1);
+
+    meyer_state.transition_timer += delta / dur;
+
+    // Loop until we consume the timer, since a large delta might skip nodes.
+    // In normal execution delta is small, but tests could jump large amounts.
+    while meyer_state.transition_timer >= 1.0 {
+        // Adjust timer for remaining overflow before advancing so while condition re-checks properly
+        meyer_state.transition_timer -= 1.0;
 
         // Advance node
         meyer_state.current_node += 1;

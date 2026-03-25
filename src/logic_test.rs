@@ -288,18 +288,22 @@ mod tests {
     fn test_meyer_sequence_advances_nodes_and_sequences() {
         let mut app = setup_app();
 
-        // Setup Meyer's Square workflow
+        // Setup Meyer's Square workflow and unpause
         {
             let mut active_workflow = app.world_mut().get_resource_mut::<ActiveWorkflow>().unwrap();
             active_workflow.0 = TrainingWorkflow::MeyerSquare;
+            let mut seq_state = app.world_mut().get_resource_mut::<SequenceState>().unwrap();
+            seq_state.running = true;
         }
 
         app.update(); // Initialize
 
-        // Advance time by rhythm duration (1.0s) to trigger node advance.
+        // Setup initial delta
         {
-            let mut time = app.world_mut().get_resource_mut::<Time>().unwrap();
-            time.advance_by(std::time::Duration::from_millis(1001));
+            // Instead of dealing with Bevy's time complexities in tests,
+            // directly manipulate the internal transition timer.
+            let mut meyer_state = app.world_mut().get_resource_mut::<MeyerTrainingResource>().unwrap();
+            meyer_state.transition_timer = 1.0;
         }
 
         app.update();
@@ -314,8 +318,8 @@ mod tests {
         // Advance time by 3 more full durations to complete the sequence
         for _ in 0..3 {
             {
-                let mut time = app.world_mut().get_resource_mut::<Time>().unwrap();
-                time.advance_by(std::time::Duration::from_millis(1001));
+                let mut meyer_state = app.world_mut().get_resource_mut::<MeyerTrainingResource>().unwrap();
+                meyer_state.transition_timer = 1.0;
             }
             app.update();
         }

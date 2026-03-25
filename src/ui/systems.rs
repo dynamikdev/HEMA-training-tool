@@ -139,47 +139,54 @@ pub fn render_meyer_square(
     if sequence_state.running {
         let current_sequence = &MEYER_SEQUENCES[meyer_state.current_sequence];
         let current_node = &current_sequence.nodes[meyer_state.current_node];
-        let start_pos = center + Vec2::new(current_node.x, current_node.y) * half_size;
 
         // Calculate end node
         let next_node_idx = (meyer_state.current_node + 1) % 4;
         // If transitioning sequence, it's more complex, but for MVP keep it within sequence
         let end_node = &current_sequence.nodes[next_node_idx];
-        let end_pos = center + Vec2::new(end_node.x, end_node.y) * half_size;
 
-        // Interpolate position based on transition timer
-        let current_pos = start_pos.lerp(end_pos, meyer_state.transition_timer);
+        // For cuts and thrusts, the visual element should span the full extent
+        // of the outermost square, regardless of which concentric square the node is on.
+        // We can find the outer positions using signum() (since the outer square has nodes at x,y = +/- 1.0)
+        let outer_start_pos = center + Vec2::new(current_node.x.signum(), current_node.y.signum()) * half_size;
+        let outer_end_pos = center + Vec2::new(end_node.x.signum(), end_node.y.signum()) * half_size;
+
+        // Interpolate position based on transition timer using the outer bounding box
+        let current_pos = outer_start_pos.lerp(outer_end_pos, meyer_state.transition_timer);
 
         match current_node.technique {
             TechniqueType::Cut => {
-                // Slash (Cut): Decaying trail. Line from start to current interpolated pos.
-                gizmos.line_2d(start_pos, current_pos, PRIMARY_EMISSIVE);
+                // Slash (Cut): Decaying trail. Line from outer start to current interpolated pos.
+                gizmos.line_2d(outer_start_pos, current_pos, PRIMARY_EMISSIVE);
                 // Make it thicker
-                let offset = (end_pos - start_pos).normalize_or_zero().perp() * 2.0;
-                gizmos.line_2d(start_pos + offset, current_pos + offset, PRIMARY_EMISSIVE);
-                gizmos.line_2d(start_pos - offset, current_pos - offset, PRIMARY_EMISSIVE);
+                let offset = (outer_end_pos - outer_start_pos).normalize_or_zero().perp() * 2.0;
+                gizmos.line_2d(outer_start_pos + offset, current_pos + offset, PRIMARY_EMISSIVE);
+                gizmos.line_2d(outer_start_pos - offset, current_pos - offset, PRIMARY_EMISSIVE);
             }
             TechniqueType::Thrust => {
-                // Beam (Thrust): Telescoping line from center.
-                gizmos.line_2d(center, current_pos, PRIMARY_EMISSIVE);
-                let offset = (current_pos - center).normalize_or_zero().perp() * 1.5;
-                gizmos.line_2d(center + offset, current_pos + offset, PRIMARY_EMISSIVE);
-                gizmos.line_2d(center - offset, current_pos - offset, PRIMARY_EMISSIVE);
+                // Beam (Thrust): Telescoping line from center to the outer position.
+                // Note: Thrust usually goes from center outwards.
+                let thrust_current_pos = center.lerp(outer_start_pos, meyer_state.transition_timer);
+                gizmos.line_2d(center, thrust_current_pos, PRIMARY_EMISSIVE);
+                let offset = (thrust_current_pos - center).normalize_or_zero().perp() * 1.5;
+                gizmos.line_2d(center + offset, thrust_current_pos + offset, PRIMARY_EMISSIVE);
+                gizmos.line_2d(center - offset, thrust_current_pos - offset, PRIMARY_EMISSIVE);
             }
             TechniqueType::Parry => {
-                // Shield (Parry): Strobing block at the target node.
-                // Blink based on timer (e.g., fast strobe)
+                // Shield (Parry): Strobing block spanning the full quadrant.
+                // We find the center of the quadrant using half_size / 2.0.
+                let quadrant_center = center + Vec2::new(current_node.x.signum(), current_node.y.signum()) * (half_size / 2.0);
                 let strobe = (meyer_state.transition_timer * 20.0).sin() > 0.0;
                 if strobe {
                     gizmos.rect_2d(
-                        start_pos,
-                        Vec2::splat(20.0),
+                        quadrant_center,
+                        Vec2::splat(half_size),
                         PRIMARY_EMISSIVE,
                     );
                 } else {
                     gizmos.rect_2d(
-                        start_pos,
-                        Vec2::splat(20.0),
+                        quadrant_center,
+                        Vec2::splat(half_size),
                         GHOST_BORDER,
                     );
                 }
