@@ -4,3 +4,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
+- [ ] **Track: Implement Meyer's Square training workflow with visual-only interaction and 'Ghost of Meyer' guidance.**
+*Link: [./tracks/meyer_square_20260324/](./tracks/meyer_square_20260324/)*
+
+---
+
