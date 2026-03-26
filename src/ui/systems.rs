@@ -196,7 +196,8 @@ pub fn update_circle_layout(
     // Use minimum dimension for radius to ensure it fits comfortably with padding.
     let radius = available_width.min(available_height) / 2.0 * 0.8;
     // Scale font size linearly based on the radius to maintain visual proportions.
-    let dynamic_font_size = radius * 0.25;
+    let font_size = (radius * 0.25).max(10.0);
+    let font_handle = typography.space_grotesk.clone();
 
     for (index, mut transform, mut text_font) in &mut text_query {
         let i = index.0;
@@ -210,8 +211,16 @@ pub fn update_circle_layout(
         transform.translation.x = x - PANEL_WIDTH / 2.0;
         transform.translation.y = y;
         transform.translation.z = 1.0;
-        text_font.font = typography.space_grotesk.clone();
-        text_font.font_size = dynamic_font_size.max(10.0); // Ensure readability on small windows.
+
+        // Optimize: Only update font and size if they have actually changed.
+        // This avoids unnecessary atomic operations from Handle cloning and
+        // unnecessary component mutations.
+        if text_font.font_size != font_size {
+            text_font.font_size = font_size;
+        }
+        if text_font.font != font_handle {
+            text_font.font = font_handle.clone();
+        }
     }
 }
 
