@@ -21,7 +21,7 @@ use setup::setup;
 use systems::*;
 use curriculum::{
     curriculum_keyboard_navigation, load_curriculum_pages, toggle_curriculum_visibility,
-    update_curriculum_image,
+    update_curriculum_image, ensure_curriculum_aspect_ratio,
 };
 
 /// Plugin that initializes and manages the training tool's user interface.
@@ -50,6 +50,7 @@ impl Plugin for UiPlugin {
                     curriculum_keyboard_navigation,
                     load_curriculum_pages,
                     update_curriculum_image,
+                    ensure_curriculum_aspect_ratio,
                 ),
             );
     }

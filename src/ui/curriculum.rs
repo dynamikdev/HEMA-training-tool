@@ -83,15 +83,44 @@ pub fn load_curriculum_pages(
 /// System to update the image component based on the currently selected page.
 pub fn update_curriculum_image(
     curriculum_state: Res<CurriculumState>,
-    mut image_query: Query<&mut ImageNode, With<CurriculumDocumentImage>>,
+    images: Res<Assets<Image>>,
+    mut image_query: Query<(&mut ImageNode, &mut Node), With<CurriculumDocumentImage>>,
 ) {
     if !curriculum_state.is_changed() || !curriculum_state.is_visible {
         return;
     }
 
     if let Some(handle) = curriculum_state.pages.get(curriculum_state.current_page) {
-        for mut image_node in &mut image_query {
+        for (mut image_node, mut node) in &mut image_query {
             image_node.image = handle.clone();
+
+            // If the image is already loaded, we can set the aspect ratio of the node
+            // to ensure it doesn't stretch.
+            if let Some(image) = images.get(handle) {
+                let size = image.size();
+                if size.y > 0 {
+                    node.aspect_ratio = Some(size.x as f32 / size.y as f32);
+                }
+            }
+        }
+    }
+}
+
+/// System to ensure the aspect ratio of the curriculum image remains correct even
+/// if the image is loaded asynchronously.
+pub fn ensure_curriculum_aspect_ratio(
+    images: Res<Assets<Image>>,
+    mut image_query: Query<(&ImageNode, &mut Node), With<CurriculumDocumentImage>>,
+) {
+    for (image_node, mut node) in &mut image_query {
+        if let Some(image) = images.get(&image_node.image) {
+            let size = image.size();
+            if size.y > 0 {
+                let ratio = size.x as f32 / size.y as f32;
+                if node.aspect_ratio != Some(ratio) {
+                    node.aspect_ratio = Some(ratio);
+                }
+            }
         }
     }
 }

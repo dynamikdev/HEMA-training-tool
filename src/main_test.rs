@@ -22,5 +22,6 @@ mod tests {
         assert!(app.world().get_resource::<SequenceState>().is_some());
         assert!(app.world().get_resource::<RhythmState>().is_some());
         assert!(app.world().get_resource::<Typography>().is_some());
+        assert!(app.world().get_resource::<CurriculumState>().is_some());
     }
 }
