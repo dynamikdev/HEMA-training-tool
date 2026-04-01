@@ -40,3 +40,31 @@ pub struct RhythmModeButton;
 /// duration changes (e.g., via the slider or during acceleration).
 #[derive(Component)]
 pub struct RhythmText;
+
+/// Marker for the UI button that toggles the visibility of the curriculum documents.
+#[derive(Component)]
+pub struct CurriculumToggleButton;
+
+/// Marker for the UI button that selects the curriculum grade.
+#[derive(Component)]
+pub struct CurriculumGradeButton;
+
+/// Marker for the UI button that selects the curriculum document.
+#[derive(Component)]
+pub struct CurriculumDocumentButton;
+
+/// Marker for the UI button that navigates to the previous page.
+#[derive(Component)]
+pub struct CurriculumPrevPageButton;
+
+/// Marker for the UI button that navigates to the next page.
+#[derive(Component)]
+pub struct CurriculumNextPageButton;
+
+/// Marker for the text element that displays the current curriculum page number.
+#[derive(Component)]
+pub struct CurriculumPageText;
+
+/// Marker for the curriculum document image display node.
+#[derive(Component)]
+pub struct CurriculumDocumentImage;

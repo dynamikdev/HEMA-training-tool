@@ -52,6 +52,42 @@ pub fn sequence_control_button_system(
     }
 }
 
+/// Handles interactions with the curriculum toggle button.
+///
+/// Toggles the visibility of the curriculum documents and automatically pauses
+/// the training sequence when opened.
+#[allow(clippy::type_complexity)]
+pub fn curriculum_toggle_system(
+    mut interaction_query: Query<
+        (&Interaction, &mut BackgroundColor, &Children),
+        (Changed<Interaction>, With<CurriculumToggleButton>),
+    >,
+    mut text_query: Query<&mut Text>,
+    mut curriculum_state: ResMut<CurriculumState>,
+    mut sequence_state: ResMut<SequenceState>,
+) {
+    for (interaction, mut background_color, children) in &mut interaction_query {
+        let mut text = text_query.get_mut(children[0]).unwrap();
+        match *interaction {
+            Interaction::Pressed => {
+                curriculum_state.is_visible = !curriculum_state.is_visible;
+                if curriculum_state.is_visible {
+                    text.0 = "Close Curriculum".to_string();
+                    sequence_state.running = false;
+                } else {
+                    text.0 = "Open Curriculum".to_string();
+                }
+            }
+            Interaction::Hovered => {
+                background_color.0 = Color::srgba(0.886, 0.886, 0.886, 0.1);
+            }
+            Interaction::None => {
+                background_color.0 = Color::NONE;
+            }
+        }
+    }
+}
+
 /// Handles interactions with the sequence mode toggle button.
 ///
 /// Switches the [`SequenceMode`] between Random and Ordered. It also resets
@@ -324,3 +360,134 @@ pub fn sync_target_visuals(
         }
     }
 }
+
+/// Handles interactions with the curriculum grade selection button.
+///
+/// Cycles through the available grades defined in [`crate::constants::CURRICULUM_MANIFEST`].
+#[allow(clippy::type_complexity)]
+pub fn curriculum_grade_system(
+    mut interaction_query: Query<
+        &Interaction,
+        (Changed<Interaction>, With<CurriculumGradeButton>),
+    >,
+    mut curriculum_state: ResMut<CurriculumState>,
+) {
+    for interaction in &mut interaction_query {
+        if *interaction == Interaction::Pressed {
+            let manifest = &crate::constants::CURRICULUM_MANIFEST;
+            let mut grades: Vec<&&str> = manifest.keys().collect();
+            grades.sort(); // Consistent order
+
+            if grades.is_empty() {
+                return;
+            }
+
+            if let Some(current) = &curriculum_state.selected_grade {
+                if let Some(pos) = grades.iter().position(|&&g| g == current) {
+                    let next_pos = (pos + 1) % grades.len();
+                    let next_grade = grades[next_pos].to_string();
+                    
+                    // Update grade and reset document to the first one available for that grade
+                    if let Some(docs) = manifest.get(next_grade.as_str()) {
+                        if !docs.is_empty() {
+                            curriculum_state.selected_grade = Some(next_grade);
+                            curriculum_state.selected_document = Some(docs[0].0.to_string());
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Handles interactions with the curriculum document selection button.
+///
+/// Cycles through the available documents for the currently selected grade.
+#[allow(clippy::type_complexity)]
+pub fn curriculum_document_system(
+    mut interaction_query: Query<
+        &Interaction,
+        (Changed<Interaction>, With<CurriculumDocumentButton>),
+    >,
+    mut curriculum_state: ResMut<CurriculumState>,
+) {
+    for interaction in &mut interaction_query {
+        if *interaction == Interaction::Pressed {
+            if let Some(grade) = &curriculum_state.selected_grade {
+                if let Some(docs) = crate::constants::CURRICULUM_MANIFEST.get(grade.as_str()) {
+                    if docs.is_empty() {
+                        return;
+                    }
+
+                    if let Some(current_doc) = &curriculum_state.selected_document {
+                        if let Some(pos) = docs.iter().position(|(d, _)| d == current_doc) {
+                            let next_pos = (pos + 1) % docs.len();
+                            curriculum_state.selected_document = Some(docs[next_pos].0.to_string());
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Handles interactions with curriculum page navigation buttons (Prev/Next).
+#[allow(clippy::type_complexity)]
+pub fn curriculum_page_button_system(
+    mut prev_query: Query<&Interaction, (Changed<Interaction>, With<CurriculumPrevPageButton>)>,
+    mut next_query: Query<&Interaction, (Changed<Interaction>, With<CurriculumNextPageButton>)>,
+    mut curriculum_state: ResMut<CurriculumState>,
+) {
+    if !curriculum_state.is_visible || curriculum_state.pages.is_empty() {
+        return;
+    }
+
+    for interaction in &mut prev_query {
+        if *interaction == Interaction::Pressed {
+            if curriculum_state.current_page > 0 {
+                curriculum_state.current_page -= 1;
+            }
+        }
+    }
+
+    for interaction in &mut next_query {
+        if *interaction == Interaction::Pressed {
+            if curriculum_state.current_page < curriculum_state.pages.len().saturating_sub(1) {
+                curriculum_state.current_page += 1;
+            }
+        }
+    }
+}
+
+/// Synchronizes the text labels of curriculum UI elements with the current state.
+pub fn sync_curriculum_ui_labels(
+    curriculum_state: Res<CurriculumState>,
+    mut query: Query<(&mut Text, Option<&ParentButton<CurriculumGradeButton>>, Option<&ParentButton<CurriculumDocumentButton>>, Option<&CurriculumPageText>)>,
+) {
+    if !curriculum_state.is_changed() {
+        return;
+    }
+
+    for (mut text, grade_btn, doc_btn, page_txt) in &mut query {
+        if grade_btn.is_some() {
+            if let Some(grade) = &curriculum_state.selected_grade {
+                text.0 = format!("Grade: {}", grade);
+            }
+        } else if doc_btn.is_some() {
+            if let Some(doc) = &curriculum_state.selected_document {
+                text.0 = format!("Doc: {}", doc);
+            }
+        } else if page_txt.is_some() {
+            if curriculum_state.pages.is_empty() {
+                 text.0 = "Page: -- / --".to_string();
+            } else {
+                 text.0 = format!("Page: {} / {}", curriculum_state.current_page + 1, curriculum_state.pages.len());
+            }
+        }
+    }
+}
+
+/// Helper trait to find text within a button's children.
+/// In this project's UI structure, buttons have a single Text child.
+#[derive(Component)]
+pub struct ParentButton<T: Component>(pub std::marker::PhantomData<T>);

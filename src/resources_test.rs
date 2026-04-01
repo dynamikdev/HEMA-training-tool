@@ -24,4 +24,15 @@ mod tests {
         assert!(!state.running);
         assert_eq!(state.mode, SequenceMode::Random);
     }
+
+    /// Verifies the default initialization of `CurriculumState`.
+    #[test]
+    fn test_curriculum_state_default() {
+        let state = CurriculumState::default();
+        assert!(!state.is_visible);
+        assert_eq!(state.selected_grade, Some("Niveau 1.1".to_string()));
+        assert_eq!(state.selected_document, Some("Passage de Grade 1.1".to_string()));
+        assert_eq!(state.current_page, 0);
+        assert!(state.pages.is_empty());
+    }
 }

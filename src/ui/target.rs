@@ -36,6 +36,7 @@ pub fn spawn_target_circle(commands: &mut Commands, typography: &Typography) {
             Transform::from_xyz(x, y, 1.0),
             NumberIndex(i),
             ZIndex(1),
+            Visibility::Visible,
         ));
     }
 }

@@ -102,3 +102,34 @@ pub struct Typography {
     /// Mechanical, legible font for technical labels and UI controls.
     pub work_sans: Handle<Font>,
 }
+
+/// Global state management for the Curriculum Integration.
+///
+/// This resource tracks the visibility of the curriculum documents, the
+/// currently selected grade/document, the current page number, and the
+/// loaded page image handles.
+#[derive(Resource, Debug)]
+pub struct CurriculumState {
+    /// Whether the curriculum document view is visible.
+    pub is_visible: bool,
+    /// The currently selected grade level (e.g., "Niveau 1.1").
+    pub selected_grade: Option<String>,
+    /// The currently selected document within the grade.
+    pub selected_document: Option<String>,
+    /// The current page index being displayed (0-based).
+    pub current_page: usize,
+    /// The asset handles for the images (pages) of the currently selected document.
+    pub pages: Vec<Handle<Image>>,
+}
+
+impl Default for CurriculumState {
+    fn default() -> Self {
+        Self {
+            is_visible: false,
+            selected_grade: Some("Niveau 1.1".to_string()),
+            selected_document: Some("Passage de Grade 1.1".to_string()),
+            current_page: 0,
+            pages: Vec::new(),
+        }
+    }
+}
