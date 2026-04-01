@@ -128,7 +128,7 @@ impl Default for CurriculumState {
             is_visible: false,
             selected_grade: Some("Niveau 1.1".to_string()),
             selected_document: Some("Passage de Grade 1.1".to_string()),
-            current_page: 1,
+            current_page: 0,
             pages: Vec::new(),
         }
     }

@@ -63,7 +63,7 @@ pub fn load_curriculum_pages(
             .map(|(_, count)| *count)
             .unwrap_or(1); // Fallback to 0 if not found, loading nothing
 
-        for i in 1..page_count {
+        for i in 1..=page_count {
             let asset_path = format!("Grades Escrime/{}/{}/page-{:02}.jpg", grade, document, i);
             let handle: Handle<Image> = asset_server.load(asset_path);
             new_pages.push(handle);
@@ -140,7 +140,7 @@ pub fn curriculum_keyboard_navigation(
     }
 
     if keyboard_input.just_pressed(KeyCode::ArrowLeft) {
-        if curriculum_state.current_page > 1 {
+        if curriculum_state.current_page > 0 {
             curriculum_state.current_page -= 1;
         }
     } else if keyboard_input.just_pressed(KeyCode::ArrowRight) {
