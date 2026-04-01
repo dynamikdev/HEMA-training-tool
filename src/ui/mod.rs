@@ -39,6 +39,10 @@ impl Plugin for UiPlugin {
                 (
                     sequence_control_button_system,
                     curriculum_toggle_system,
+                    curriculum_grade_system,
+                    curriculum_document_system,
+                    curriculum_page_button_system,
+                    sync_curriculum_ui_labels,
                     mode_toggle_system,
                     rhythm_mode_toggle_system,
                     style_slider_system,

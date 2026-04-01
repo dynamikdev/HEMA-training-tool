@@ -61,9 +61,9 @@ pub fn load_curriculum_pages(
             .get(grade.as_str())
             .and_then(|docs| docs.iter().find(|(doc, _)| doc == document))
             .map(|(_, count)| *count)
-            .unwrap_or(0); // Fallback to 0 if not found, loading nothing
+            .unwrap_or(1); // Fallback to 0 if not found, loading nothing
 
-        for i in 0..page_count {
+        for i in 1..page_count {
             let asset_path = format!("Grades Escrime/{}/{}/page-{:02}.jpg", grade, document, i);
             let handle: Handle<Image> = asset_server.load(asset_path);
             new_pages.push(handle);
@@ -86,20 +86,25 @@ pub fn update_curriculum_image(
     images: Res<Assets<Image>>,
     mut image_query: Query<(&mut ImageNode, &mut Node), With<CurriculumDocumentImage>>,
 ) {
-    if !curriculum_state.is_changed() || !curriculum_state.is_visible {
+    if !curriculum_state.is_visible {
         return;
     }
 
     if let Some(handle) = curriculum_state.pages.get(curriculum_state.current_page) {
         for (mut image_node, mut node) in &mut image_query {
-            image_node.image = handle.clone();
+            // Always ensure the handle is up-to-date if it changed or if the node is empty
+            if image_node.image != *handle {
+                image_node.image = handle.clone();
+            }
 
-            // If the image is already loaded, we can set the aspect ratio of the node
-            // to ensure it doesn't stretch.
+            // If the image is loaded, update the aspect ratio immediately
             if let Some(image) = images.get(handle) {
                 let size = image.size();
                 if size.y > 0 {
-                    node.aspect_ratio = Some(size.x as f32 / size.y as f32);
+                    let ratio = size.x as f32 / size.y as f32;
+                    if node.aspect_ratio != Some(ratio) {
+                        node.aspect_ratio = Some(ratio);
+                    }
                 }
             }
         }
@@ -135,7 +140,7 @@ pub fn curriculum_keyboard_navigation(
     }
 
     if keyboard_input.just_pressed(KeyCode::ArrowLeft) {
-        if curriculum_state.current_page > 0 {
+        if curriculum_state.current_page > 1 {
             curriculum_state.current_page -= 1;
         }
     } else if keyboard_input.just_pressed(KeyCode::ArrowRight) {
@@ -164,14 +169,14 @@ pub fn spawn_curriculum_viewer(parent: &mut ChildSpawnerCommands) {
         CurriculumViewer,
     )).with_children(|parent| {
         parent.spawn((
-            ImageNode {
-                // Initial placeholder or clear image; dynamic loading updates this
-                ..default()
-            },
+            ImageNode::default(),
             Node {
+                // Try to fill height first, width will be calculated by aspect ratio
+                height: Val::Percent(100.0),
+                width: Val::Auto,
                 max_width: Val::Percent(100.0),
-                max_height: Val::Percent(100.0),
-                // Preserve aspect ratio
+                // Default to A4 portrait ratio to avoid initial stretch while loading
+                aspect_ratio: Some(0.707),
                 ..default()
             },
             crate::components::CurriculumDocumentImage,

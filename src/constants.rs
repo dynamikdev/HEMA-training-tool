@@ -56,11 +56,9 @@ use std::collections::HashMap;
 /// Format: `HashMap<GradeName, Vec<(DocumentName, PageCount)>>`
 pub static CURRICULUM_MANIFEST: Lazy<HashMap<&'static str, Vec<(&'static str, usize)>>> = Lazy::new(|| {
     let mut m = HashMap::new();
-    // 14 pages (00 to 13)
-    m.insert("Niveau 1.1", vec![("Passage de Grade 1.1", 14)]);
-    // 11 pages (00 to 10)
-    m.insert("Niveau 1.2", vec![("Passage de grade 1.2", 11)]);
+    // 14 pages (01 to 13)
+    m.insert("Niveau 1.1", vec![("Passage de Grade 1.1", 13)]);
+    // 11 pages (01 to 10)
+    m.insert("Niveau 1.2", vec![("Passage de grade 1.2", 10)]);
     m
 });
-
-// --- Deprecated (Replaced by Kinetic Brutalism Palette) ---

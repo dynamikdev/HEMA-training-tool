@@ -53,6 +53,18 @@ pub struct CurriculumGradeButton;
 #[derive(Component)]
 pub struct CurriculumDocumentButton;
 
+/// Marker for the UI button that navigates to the previous page.
+#[derive(Component)]
+pub struct CurriculumPrevPageButton;
+
+/// Marker for the UI button that navigates to the next page.
+#[derive(Component)]
+pub struct CurriculumNextPageButton;
+
+/// Marker for the text element that displays the current curriculum page number.
+#[derive(Component)]
+pub struct CurriculumPageText;
+
 /// Marker for the curriculum document image display node.
 #[derive(Component)]
 pub struct CurriculumDocumentImage;
