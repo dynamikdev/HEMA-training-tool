@@ -12,6 +12,8 @@ mod setup_test;
 #[cfg(test)]
 mod curriculum_test;
 pub mod systems;
+#[cfg(test)]
+mod systems_test;
 pub mod target;
 
 use bevy::prelude::*;
