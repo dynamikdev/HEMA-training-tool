@@ -33,6 +33,30 @@ pub fn toggle_curriculum_visibility(
     }
 }
 
+/// Helper function to load asset handles for all pages of a specific document.
+/// It uses the static manifest to determine the correct page count,
+/// ensuring WASM and packaged app compatibility without runtime file system checks.
+fn load_pages_for_document(
+    asset_server: &Res<AssetServer>,
+    grade: &str,
+    document: &str,
+) -> Vec<Handle<Image>> {
+    let mut new_pages = Vec::new();
+    let page_count = crate::constants::CURRICULUM_MANIFEST
+        .get(grade)
+        .and_then(|docs| docs.iter().find(|(doc, _)| doc == &document))
+        .map(|(_, count)| *count)
+        .unwrap_or(1); // Fallback to 1 if not found, as per original logic
+
+    for i in 1..=page_count {
+        let asset_path = format!("Grades Escrime/{}/{}/page-{:02}.jpg", grade, document, i);
+        let handle: Handle<Image> = asset_server.load(asset_path);
+        new_pages.push(handle);
+    }
+
+    new_pages
+}
+
 /// System to dynamically load the asset handles for a selected document's pages.
 pub fn load_curriculum_pages(
     asset_server: Res<AssetServer>,
@@ -53,21 +77,7 @@ pub fn load_curriculum_pages(
         // out of the box in WASM/cross-platform ways easily without plugin extensions, so
         // pre-generating the paths is safer.
         // For our test documents, max page is 13.
-
-        let mut new_pages = Vec::new();
-        // Look up the exact page count from the static manifest to avoid runtime
-        // file system checks, which ensures WASM and packaged app compatibility.
-        let page_count = crate::constants::CURRICULUM_MANIFEST
-            .get(grade.as_str())
-            .and_then(|docs| docs.iter().find(|(doc, _)| doc == document))
-            .map(|(_, count)| *count)
-            .unwrap_or(1); // Fallback to 0 if not found, loading nothing
-
-        for i in 1..=page_count {
-            let asset_path = format!("Grades Escrime/{}/{}/page-{:02}.jpg", grade, document, i);
-            let handle: Handle<Image> = asset_server.load(asset_path);
-            new_pages.push(handle);
-        }
+        let new_pages = load_pages_for_document(&asset_server, grade, document);
 
         // Check if the actual handles changed (e.g. if the document changed but happened to have the same page count)
         if curriculum_state.pages != new_pages {
