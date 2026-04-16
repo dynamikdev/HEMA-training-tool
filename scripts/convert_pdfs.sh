@@ -23,10 +23,16 @@ find "$BASE_DIR" -type f -name "*.pdf" | while read -r pdf_file; do
     
     # Rename pages to have leading zeros for better sorting (page-1.jpg -> page-01.jpg)
     for f in "$output_dir"/page-*.jpg; do
-        # Extract the number, strip any leading dash and the .jpg extension
-        num=$(basename "$f" .jpg | sed 's/page-//')
+        # Check if the file exists (handles the case where no files match the glob)
+        [ -e "$f" ] || continue
+
+        # Extract the number securely using bash parameter expansion
+        base="${f##*/}"
+        base="${base%.jpg}"
+        num="${base#page-}"
+
         # Remove leading zero to avoid octal interpretation in bash printf
-        clean_num=$(echo $num | sed 's/^0*//')
+        clean_num="${num#"${num%%[!0]*}"}"
         # If the number was 0 or 00, clean_num might be empty
         if [ -z "$clean_num" ]; then clean_num=0; fi
         
