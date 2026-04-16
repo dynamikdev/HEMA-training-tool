@@ -77,161 +77,170 @@ fn spawn_curriculum_section(parent: &mut ChildSpawnerCommands, typography: &Typo
             },
         ));
 
-        // Toggle Curriculum Button
-        parent.spawn((
-            Button,
-            Node {
-                width: Val::Percent(100.0),
-                height: Val::Px(45.0),
-                border: UiRect::all(Val::Px(1.0)),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                margin: UiRect::bottom(Val::Px(15.0)),
-                ..default()
-            },
-            BorderColor::all(GHOST_BORDER),
-            BackgroundColor(Color::NONE),
-            crate::components::CurriculumToggleButton,
-        )).with_children(|parent| {
-            parent.spawn((
-                Text::new("Open Curriculum"),
-                TextFont {
-                    font: typography.work_sans.clone(),
-                    font_size: 16.0,
-                    ..default()
-                },
-                TextColor(NEUTRAL_TEXT),
-            ));
-        });
+        spawn_curriculum_toggle_button(parent, typography);
+        spawn_curriculum_grade_button(parent, typography);
+        spawn_curriculum_document_button(parent, typography);
+        spawn_curriculum_navigation_row(parent, typography);
+    });
+}
 
-        // Grade Selection Button
-        parent.spawn((
-            Button,
-            Node {
-                width: Val::Percent(100.0),
-                height: Val::Px(45.0),
-                border: UiRect::all(Val::Px(1.0)),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                margin: UiRect::bottom(Val::Px(15.0)),
-                ..default()
-            },
-            BorderColor::all(GHOST_BORDER),
-            BackgroundColor(Color::NONE),
-            crate::components::CurriculumGradeButton,
-        )).with_children(|parent| {
-            parent.spawn((
-                Text::new("Grade: Niveau 1.1"),
-                TextFont {
-                    font: typography.work_sans.clone(),
-                    font_size: 14.0,
-                    ..default()
-                },
-                TextColor(NEUTRAL_TEXT),
-                crate::ui::systems::ParentButton::<crate::components::CurriculumGradeButton>(std::marker::PhantomData),
-            ));
-        });
-
-        // Document Selection Button
-        parent.spawn((
-            Button,
-            Node {
-                width: Val::Percent(100.0),
-                height: Val::Px(45.0),
-                border: UiRect::all(Val::Px(1.0)),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                margin: UiRect::bottom(Val::Px(15.0)),
-                ..default()
-            },
-            BorderColor::all(GHOST_BORDER),
-            BackgroundColor(Color::NONE),
-            crate::components::CurriculumDocumentButton,
-        )).with_children(|parent| {
-            parent.spawn((
-                Text::new("Doc: Passage de Grade 1.1"),
-                TextFont {
-                    font: typography.work_sans.clone(),
-                    font_size: 12.0,
-                    ..default()
-                },
-                TextColor(NEUTRAL_TEXT),
-                crate::ui::systems::ParentButton::<crate::components::CurriculumDocumentButton>(std::marker::PhantomData),
-            ));
-        });
-
-        // Page Navigation Row
-        parent.spawn(Node {
-            display: Display::Flex,
-            flex_direction: FlexDirection::Row,
-            justify_content: JustifyContent::SpaceBetween,
+fn spawn_curriculum_toggle_button(parent: &mut ChildSpawnerCommands, typography: &Typography) {
+    parent.spawn((
+        Button,
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Px(45.0),
+            border: UiRect::all(Val::Px(1.0)),
+            justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
             margin: UiRect::bottom(Val::Px(15.0)),
             ..default()
-        }).with_children(|parent| {
-            // Previous Button
-            parent.spawn((
-                Button,
-                Node {
-                    width: Val::Px(45.0),
-                    height: Val::Px(45.0),
-                    border: UiRect::all(Val::Px(1.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                BorderColor::all(GHOST_BORDER),
-                BackgroundColor(Color::NONE),
-                crate::components::CurriculumPrevPageButton,
-            )).with_children(|parent| {
-                parent.spawn((
-                    Text::new("<"),
-                    TextFont {
-                        font: typography.work_sans.clone(),
-                        font_size: 20.0,
-                        ..default()
-                    },
-                    TextColor(NEUTRAL_TEXT),
-                ));
-            });
+        },
+        BorderColor::all(GHOST_BORDER),
+        BackgroundColor(Color::NONE),
+        crate::components::CurriculumToggleButton,
+    )).with_children(|parent| {
+        parent.spawn((
+            Text::new("Open Curriculum"),
+            TextFont {
+                font: typography.work_sans.clone(),
+                font_size: 16.0,
+                ..default()
+            },
+            TextColor(NEUTRAL_TEXT),
+        ));
+    });
+}
 
-            // Page Counter
+fn spawn_curriculum_grade_button(parent: &mut ChildSpawnerCommands, typography: &Typography) {
+    parent.spawn((
+        Button,
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Px(45.0),
+            border: UiRect::all(Val::Px(1.0)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            margin: UiRect::bottom(Val::Px(15.0)),
+            ..default()
+        },
+        BorderColor::all(GHOST_BORDER),
+        BackgroundColor(Color::NONE),
+        crate::components::CurriculumGradeButton,
+    )).with_children(|parent| {
+        parent.spawn((
+            Text::new("Grade: Niveau 1.1"),
+            TextFont {
+                font: typography.work_sans.clone(),
+                font_size: 14.0,
+                ..default()
+            },
+            TextColor(NEUTRAL_TEXT),
+            crate::ui::systems::ParentButton::<crate::components::CurriculumGradeButton>(std::marker::PhantomData),
+        ));
+    });
+}
+
+fn spawn_curriculum_document_button(parent: &mut ChildSpawnerCommands, typography: &Typography) {
+    parent.spawn((
+        Button,
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Px(45.0),
+            border: UiRect::all(Val::Px(1.0)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            margin: UiRect::bottom(Val::Px(15.0)),
+            ..default()
+        },
+        BorderColor::all(GHOST_BORDER),
+        BackgroundColor(Color::NONE),
+        crate::components::CurriculumDocumentButton,
+    )).with_children(|parent| {
+        parent.spawn((
+            Text::new("Doc: Passage de Grade 1.1"),
+            TextFont {
+                font: typography.work_sans.clone(),
+                font_size: 12.0,
+                ..default()
+            },
+            TextColor(NEUTRAL_TEXT),
+            crate::ui::systems::ParentButton::<crate::components::CurriculumDocumentButton>(std::marker::PhantomData),
+        ));
+    });
+}
+
+fn spawn_curriculum_navigation_row(parent: &mut ChildSpawnerCommands, typography: &Typography) {
+    parent.spawn(Node {
+        display: Display::Flex,
+        flex_direction: FlexDirection::Row,
+        justify_content: JustifyContent::SpaceBetween,
+        align_items: AlignItems::Center,
+        margin: UiRect::bottom(Val::Px(15.0)),
+        ..default()
+    }).with_children(|parent| {
+        // Previous Button
+        parent.spawn((
+            Button,
+            Node {
+                width: Val::Px(45.0),
+                height: Val::Px(45.0),
+                border: UiRect::all(Val::Px(1.0)),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            BorderColor::all(GHOST_BORDER),
+            BackgroundColor(Color::NONE),
+            crate::components::CurriculumPrevPageButton,
+        )).with_children(|parent| {
             parent.spawn((
-                Text::new("Page: -- / --"),
+                Text::new("<"),
                 TextFont {
                     font: typography.work_sans.clone(),
-                    font_size: 14.0,
+                    font_size: 20.0,
                     ..default()
                 },
                 TextColor(NEUTRAL_TEXT),
-                crate::components::CurriculumPageText,
             ));
+        });
 
-            // Next Button
+        // Page Counter
+        parent.spawn((
+            Text::new("Page: -- / --"),
+            TextFont {
+                font: typography.work_sans.clone(),
+                font_size: 14.0,
+                ..default()
+            },
+            TextColor(NEUTRAL_TEXT),
+            crate::components::CurriculumPageText,
+        ));
+
+        // Next Button
+        parent.spawn((
+            Button,
+            Node {
+                width: Val::Px(45.0),
+                height: Val::Px(45.0),
+                border: UiRect::all(Val::Px(1.0)),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            BorderColor::all(GHOST_BORDER),
+            BackgroundColor(Color::NONE),
+            crate::components::CurriculumNextPageButton,
+        )).with_children(|parent| {
             parent.spawn((
-                Button,
-                Node {
-                    width: Val::Px(45.0),
-                    height: Val::Px(45.0),
-                    border: UiRect::all(Val::Px(1.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
+                Text::new(">"),
+                TextFont {
+                    font: typography.work_sans.clone(),
+                    font_size: 20.0,
                     ..default()
                 },
-                BorderColor::all(GHOST_BORDER),
-                BackgroundColor(Color::NONE),
-                crate::components::CurriculumNextPageButton,
-            )).with_children(|parent| {
-                parent.spawn((
-                    Text::new(">"),
-                    TextFont {
-                        font: typography.work_sans.clone(),
-                        font_size: 20.0,
-                        ..default()
-                    },
-                    TextColor(NEUTRAL_TEXT),
-                ));
-            });
+                TextColor(NEUTRAL_TEXT),
+            ));
         });
     });
 }
