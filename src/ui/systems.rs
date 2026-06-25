@@ -28,7 +28,8 @@ pub fn sequence_control_button_system(
     mut rhythm_state: ResMut<RhythmState>,
 ) {
     for (interaction, mut background_color, children) in &mut interaction_query {
-        let mut text = text_query.get_mut(children[0]).unwrap();
+        let Some(&child) = children.first() else { continue; };
+        let Ok(mut text) = text_query.get_mut(child) else { continue; };
         match *interaction {
             Interaction::Pressed => {
                 sequence_state.running = !sequence_state.running;
@@ -67,7 +68,8 @@ pub fn curriculum_toggle_system(
     mut sequence_state: ResMut<SequenceState>,
 ) {
     for (interaction, mut background_color, children) in &mut interaction_query {
-        let mut text = text_query.get_mut(children[0]).unwrap();
+        let Some(&child) = children.first() else { continue; };
+        let Ok(mut text) = text_query.get_mut(child) else { continue; };
         match *interaction {
             Interaction::Pressed => {
                 curriculum_state.is_visible = !curriculum_state.is_visible;
@@ -102,7 +104,8 @@ pub fn mode_toggle_system(
     mut sequence_state: ResMut<SequenceState>,
 ) {
     for (interaction, mut background_color, children) in &mut interaction_query {
-        let mut text = text_query.get_mut(children[0]).unwrap();
+        let Some(&child) = children.first() else { continue; };
+        let Ok(mut text) = text_query.get_mut(child) else { continue; };
         match *interaction {
             Interaction::Pressed => {
                 sequence_state.mode = match sequence_state.mode {
@@ -146,7 +149,8 @@ pub fn rhythm_mode_toggle_system(
     mut rhythm_state: ResMut<RhythmState>,
 ) {
     for (interaction, mut background_color, children) in &mut interaction_query {
-        let mut text = text_query.get_mut(children[0]).unwrap();
+        let Some(&child) = children.first() else { continue; };
+        let Ok(mut text) = text_query.get_mut(child) else { continue; };
         match *interaction {
             Interaction::Pressed => {
                 rhythm_state.mode = match rhythm_state.mode {
