@@ -13,6 +13,8 @@ mod setup_test;
 mod curriculum_test;
 pub mod systems;
 pub mod target;
+#[cfg(test)]
+mod target_test;
 
 use bevy::prelude::*;
 use bevy_ui_widgets::SliderPlugin;
