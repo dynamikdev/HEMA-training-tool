@@ -47,6 +47,11 @@ pub fn sequence_control_button_system(
                 background_color.0 = Color::srgba(0.886, 0.886, 0.886, 0.1);
             }
             Interaction::None => {
+                if sequence_state.running {
+                    background_color.0 = PRIMARY_EMISSIVE;
+                } else {
+                    background_color.0 = Color::NONE;
+                }
             }
         }
     }
