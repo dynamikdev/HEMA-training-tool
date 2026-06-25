@@ -26,7 +26,7 @@ find "$BASE_DIR" -type f -name "*.pdf" | while read -r pdf_file; do
         # Extract the number, strip any leading dash and the .jpg extension
         num=$(basename "$f" .jpg | sed 's/page-//')
         # Remove leading zero to avoid octal interpretation in bash printf
-        clean_num=$(echo $num | sed 's/^0*//')
+        clean_num=$(echo "$num" | sed 's/^0*//')
         # If the number was 0 or 00, clean_num might be empty
         if [ -z "$clean_num" ]; then clean_num=0; fi
         
