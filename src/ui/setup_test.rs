@@ -35,13 +35,21 @@ mod tests {
         assert!(!seq_state.running, "Sequence should be paused when curriculum is opened.");
     }
 
+    fn setup_test_app() -> App {
+        let mut app = App::new();
+        // Use TaskPoolPlugin to avoid "IoTaskPool has not been initialized yet"
+        app.add_plugins(TaskPoolPlugin::default());
+        app.add_plugins(AssetPlugin::default());
+        app.add_plugins(bevy::text::TextPlugin::default());
+        app.insert_resource(Typography::default());
+        app.add_systems(Startup, setup);
+        app
+    }
+
     /// Verifies that the camera is spawned with the Hdr and Bloom components.
     #[test]
     fn test_camera_has_hdr_and_bloom() {
-        let mut app = App::new();
-        app.insert_resource(Typography::default());
-        app.add_plugins((AssetPlugin::default(), bevy::text::TextPlugin::default()));
-        app.add_systems(Startup, setup);
+        let mut app = setup_test_app();
         app.update();
 
         // Check for camera with Hdr and Bloom
@@ -52,10 +60,7 @@ mod tests {
     /// Verifies that the target numbers are spawned with the correct Z-coordinate and ZIndex.
     #[test]
     fn test_target_numbers_layering() {
-        let mut app = App::new();
-        app.insert_resource(Typography::default());
-        app.add_plugins((AssetPlugin::default(), bevy::text::TextPlugin::default()));
-        app.add_systems(Startup, setup);
+        let mut app = setup_test_app();
         app.update();
 
         use crate::components::NumberIndex;

@@ -68,3 +68,9 @@ pub struct CurriculumPageText;
 /// Marker for the curriculum document image display node.
 #[derive(Component)]
 pub struct CurriculumDocumentImage;
+
+/// Marker for the UI button that switches the training workflow.
+///
+/// Used to identify the button that toggles between Circular and Meyer's Square workflows.
+#[derive(Component)]
+pub struct WorkflowModeButton;

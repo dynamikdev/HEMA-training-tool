@@ -52,6 +52,8 @@ fn initialize_app(app: &mut App) {
             mode: SequenceMode::Random,
             current_ordered_value: 0,
         })
+        .insert_resource(ActiveWorkflow::default())
+        .insert_resource(MeyerTrainingResource::default())
         .insert_resource(RhythmState {
             duration: 1.0,
             mode: RhythmMode::Constant,

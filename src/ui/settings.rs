@@ -46,10 +46,42 @@ pub fn spawn_settings_panel(parent: &mut ChildSpawnerCommands, typography: &Typo
                 },
             ));
 
+            spawn_workflow_toggle_button(parent, typography);
             spawn_mode_toggle_button(parent, typography);
             spawn_sequence_control_button(parent, typography);
             spawn_rhythm_section(parent, typography);
             spawn_curriculum_section(parent, typography);
+        });
+}
+
+/// Spawns the button for toggling the training workflow (Circular vs Meyer's Square).
+fn spawn_workflow_toggle_button(parent: &mut ChildSpawnerCommands, typography: &Typography) {
+    parent
+        .spawn((
+            Button,
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Px(65.0),
+                border: UiRect::all(Val::Px(1.0)),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                margin: UiRect::bottom(Val::Px(15.0)),
+                ..default()
+            },
+            BorderColor::all(GHOST_BORDER),
+            BackgroundColor(Color::NONE),
+            WorkflowModeButton,
+        ))
+        .with_children(|parent| {
+            parent.spawn((
+                Text::new("Workflow: Circular"),
+                TextFont {
+                    font: typography.work_sans.clone(),
+                    font_size: 20.0,
+                    ..default()
+                },
+                TextColor(NEUTRAL_TEXT),
+            ));
         });
 }
 

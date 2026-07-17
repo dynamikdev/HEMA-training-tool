@@ -24,6 +24,49 @@ pub const CIRCLE_RADIUS: f32 = 300.0;
 /// standard HEMA target diagrams (e.g., Meyer's Square).
 pub const LABELS: [u8; 8] = [7, 1, 5, 3, 8, 4, 6, 2];
 
+/// The four concentric sequences of Meyer's Square.
+///
+/// Organized from outer to inner, with each sequence containing a 4-strike order.
+/// Coordinates are normalized from -1.0 to 1.0, with (0,0) at the center.
+pub const MEYER_SEQUENCES: [crate::resources::MeyerSequence; 4] = [
+    // Outer Sequence
+    crate::resources::MeyerSequence {
+        nodes: [
+            crate::resources::MeyerNode { x: -1.0, y: 1.0, technique: crate::resources::TechniqueType::Cut },
+            crate::resources::MeyerNode { x: 1.0, y: -1.0, technique: crate::resources::TechniqueType::Cut },
+            crate::resources::MeyerNode { x: -1.0, y: -1.0, technique: crate::resources::TechniqueType::Cut },
+            crate::resources::MeyerNode { x: 1.0, y: 1.0, technique: crate::resources::TechniqueType::Cut },
+        ],
+    },
+    // Outer-Mid Sequence
+    crate::resources::MeyerSequence {
+        nodes: [
+            crate::resources::MeyerNode { x: -0.66, y: 0.66, technique: crate::resources::TechniqueType::Thrust },
+            crate::resources::MeyerNode { x: 0.66, y: -0.66, technique: crate::resources::TechniqueType::Thrust },
+            crate::resources::MeyerNode { x: -0.66, y: -0.66, technique: crate::resources::TechniqueType::Thrust },
+            crate::resources::MeyerNode { x: 0.66, y: 0.66, technique: crate::resources::TechniqueType::Thrust },
+        ],
+    },
+    // Inner-Mid Sequence
+    crate::resources::MeyerSequence {
+        nodes: [
+            crate::resources::MeyerNode { x: -0.33, y: 0.33, technique: crate::resources::TechniqueType::Parry },
+            crate::resources::MeyerNode { x: 0.33, y: -0.33, technique: crate::resources::TechniqueType::Parry },
+            crate::resources::MeyerNode { x: -0.33, y: -0.33, technique: crate::resources::TechniqueType::Parry },
+            crate::resources::MeyerNode { x: 0.33, y: 0.33, technique: crate::resources::TechniqueType::Parry },
+        ],
+    },
+    // Inner Sequence
+    crate::resources::MeyerSequence {
+        nodes: [
+            crate::resources::MeyerNode { x: -0.1, y: 0.1, technique: crate::resources::TechniqueType::Cut },
+            crate::resources::MeyerNode { x: 0.1, y: -0.1, technique: crate::resources::TechniqueType::Cut },
+            crate::resources::MeyerNode { x: -0.1, y: -0.1, technique: crate::resources::TechniqueType::Cut },
+            crate::resources::MeyerNode { x: 0.1, y: 0.1, technique: crate::resources::TechniqueType::Cut },
+        ],
+    },
+];
+
 // --- Kinetic Brutalism Color Palette ---
 
 /// Background: The primary void.
