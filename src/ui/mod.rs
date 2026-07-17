@@ -11,6 +11,8 @@ pub mod setup;
 mod setup_test;
 #[cfg(test)]
 mod curriculum_test;
+#[cfg(test)]
+mod settings_test;
 pub mod systems;
 pub mod target;
 
