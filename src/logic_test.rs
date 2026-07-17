@@ -241,6 +241,45 @@ mod tests {
         assert_eq!(arrow_target.0, Some(2));
     }
 
+    /// Verifies that `sync_rhythm_ui` correctly updates text and slider values
+    /// when the `RhythmState` duration changes.
+    #[test]
+    fn test_sync_rhythm_ui_updates_components() {
+        use bevy_ui_widgets::{Slider, SliderValue};
+        use crate::components::RhythmText;
+
+        let mut app = setup_app();
+
+        // Spawn a text entity with RhythmText marker.
+        let text_entity = app.world_mut().spawn((
+            Text("Initial".to_string()),
+            RhythmText,
+        )).id();
+
+        // Spawn a slider entity.
+        let slider_entity = app.world_mut().spawn(Slider::default()).id();
+
+        // Run an update cycle. Nothing should change since RhythmState hasn't changed.
+        app.update();
+
+        // Now, change the RhythmState duration.
+        {
+            let mut rhythm_state = app.world_mut().get_resource_mut::<RhythmState>().unwrap();
+            rhythm_state.duration = 2.5;
+        }
+
+        // Run the update cycle to trigger `sync_rhythm_ui`.
+        app.update();
+
+        // Verify that the text was updated to reflect the new duration.
+        let text = app.world().get::<Text>(text_entity).unwrap();
+        assert_eq!(text.0, "Rhythm: 2.5s");
+
+        // Verify that the slider entity has received a SliderValue component with the new duration.
+        let slider_val = app.world().get::<SliderValue>(slider_entity).unwrap();
+        assert_eq!(slider_val.0, 2.5);
+    }
+
     /// Verifies that the arrow animation progress resets and increments over time.
     #[test]
     fn test_arrow_animation_progress() {
