@@ -238,20 +238,36 @@ pub fn update_circle_layout(
     // Scale font size linearly based on the radius to maintain visual proportions.
     let dynamic_font_size = radius * 0.25;
 
+    let target_font_size = dynamic_font_size.max(10.0); // Ensure readability on small windows.
+
     for (index, mut transform, mut text_font) in &mut text_query {
         let i = index.0;
         // Calculate position on the circle. Start at 90 degrees (Top) and move clockwise.
         let angle = PI / 2.0 - (i as f32) * (PI / 4.0);
 
-        let x = angle.cos() * radius;
-        let y = angle.sin() * radius;
+        let target_x = angle.cos() * radius - PANEL_WIDTH / 2.0;
+        let target_y = angle.sin() * radius;
+        let target_z = 1.0;
 
-        // Offset X to center the circle in the area to the left of the side panel.
-        transform.translation.x = x - PANEL_WIDTH / 2.0;
-        transform.translation.y = y;
-        transform.translation.z = 1.0;
-        text_font.font = typography.space_grotesk.clone();
-        text_font.font_size = dynamic_font_size.max(10.0); // Ensure readability on small windows.
+        // Only update translation if there is a meaningful change to prevent redundant change detection
+        if (transform.translation.x - target_x).abs() > f32::EPSILON
+            || (transform.translation.y - target_y).abs() > f32::EPSILON
+            || (transform.translation.z - target_z).abs() > f32::EPSILON
+        {
+            transform.translation.x = target_x;
+            transform.translation.y = target_y;
+            transform.translation.z = target_z;
+        }
+
+        // Verify handle equality before assigning to avoid unnecessary atomic reference count increments
+        if text_font.font != typography.space_grotesk {
+            text_font.font = typography.space_grotesk.clone();
+        }
+
+        // Only update font size if it has changed
+        if (text_font.font_size - target_font_size).abs() > f32::EPSILON {
+            text_font.font_size = target_font_size;
+        }
     }
 }
 
