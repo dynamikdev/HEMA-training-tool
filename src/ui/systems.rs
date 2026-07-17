@@ -9,7 +9,7 @@ use bevy_ui_widgets::{Slider, SliderRange, SliderThumb, SliderValue};
 use std::f32::consts::PI;
 
 use crate::components::*;
-use crate::constants::{PRIMARY_EMISSIVE, NEUTRAL_TEXT, PANEL_WIDTH};
+use crate::constants::{PRIMARY_EMISSIVE, NEUTRAL_TEXT, PANEL_WIDTH, GHOST_BORDER};
 use crate::resources::*;
 
 /// Handles interactions with the sequence control button (Play/Pause).
@@ -45,9 +45,14 @@ pub fn sequence_control_button_system(
                 }
             }
             Interaction::Hovered => {
-                background_color.0 = Color::srgba(0.886, 0.886, 0.886, 0.1);
+                background_color.0 = GHOST_BORDER;
             }
             Interaction::None => {
+                if sequence_state.running {
+                    background_color.0 = PRIMARY_EMISSIVE;
+                } else {
+                    background_color.0 = Color::NONE;
+                }
             }
         }
     }
