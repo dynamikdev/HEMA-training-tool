@@ -60,5 +60,9 @@ pub static CURRICULUM_MANIFEST: Lazy<HashMap<&'static str, Vec<(&'static str, us
     m.insert("Niveau 1.1", vec![("Passage de Grade 1.1", 13)]);
     // 11 pages (01 to 10)
     m.insert("Niveau 1.2", vec![("Passage de grade 1.2", 10)]);
+    #[cfg(test)]
+    {
+        m.insert("Test Grade", vec![("Doc A", 1), ("Doc B", 2)]);
+    }
     m
 });
