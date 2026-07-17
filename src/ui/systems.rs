@@ -44,11 +44,14 @@ pub fn sequence_control_button_system(
                     rhythm_state.accelerate_counter = 0;
                 }
             }
-            Interaction::Hovered => {
-                background_color.0 = Color::srgba(0.886, 0.886, 0.886, 0.1);
-            }
             Interaction::None => {
+                if sequence_state.running {
+                    background_color.0 = PRIMARY_EMISSIVE;
+                } else {
+                    background_color.0 = Color::NONE;
+                }
             }
+            _ => {}
         }
     }
 }
@@ -80,12 +83,10 @@ pub fn curriculum_toggle_system(
                     text.0 = "Open Curriculum".to_string();
                 }
             }
-            Interaction::Hovered => {
-                background_color.0 = Color::srgba(0.886, 0.886, 0.886, 0.1);
-            }
             Interaction::None => {
                 background_color.0 = Color::NONE;
             }
+            _ => {}
         }
     }
 }
@@ -124,12 +125,10 @@ pub fn mode_toggle_system(
                     }
                 }
             }
-            Interaction::Hovered => {
-                background_color.0 = Color::srgba(0.886, 0.886, 0.886, 0.1);
-            }
             Interaction::None => {
                 background_color.0 = Color::NONE;
             }
+            _ => {}
         }
     }
 }
@@ -170,12 +169,10 @@ pub fn rhythm_mode_toggle_system(
                     }
                 }
             }
-            Interaction::Hovered => {
-                background_color.0 = Color::srgba(0.886, 0.886, 0.886, 0.1);
-            }
             Interaction::None => {
                 background_color.0 = Color::NONE;
             }
+            _ => {}
         }
     }
 }
@@ -495,3 +492,28 @@ pub fn sync_curriculum_ui_labels(
 /// In this project's UI structure, buttons have a single Text child.
 #[derive(Component)]
 pub struct ParentButton<T: Component>(pub std::marker::PhantomData<T>);
+
+/// A generic system to handle hover color for all buttons.
+///
+/// It applies the standard design system `GHOST_BORDER` background color on hover,
+/// and restores it to `Color::NONE` when the interaction ends.
+/// Systems that manage toggle state buttons run after this to override
+/// the `Interaction::None` state as needed.
+pub fn button_hover_system(
+    mut interaction_query: Query<
+        (&Interaction, &mut BackgroundColor),
+        (Changed<Interaction>, With<Button>),
+    >,
+) {
+    for (interaction, mut background_color) in &mut interaction_query {
+        match *interaction {
+            Interaction::Hovered => {
+                background_color.0 = crate::constants::GHOST_BORDER;
+            }
+            Interaction::None => {
+                background_color.0 = Color::NONE;
+            }
+            _ => {}
+        }
+    }
+}
